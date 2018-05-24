@@ -1,0 +1,20 @@
+package org.yipuran.util.sort;
+
+import java.lang.reflect.Method;
+import java.util.Comparator;
+
+import javax.inject.Inject;
+
+class DescUniqueComparator<T> implements Comparator<T>{
+	@Inject private Method getterMethod;
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public int compare(T o1,T o2){
+		try{
+			return -1 * ((Comparable<T>)this.getterMethod.invoke(o1)).compareTo((T)this.getterMethod.invoke(o2));
+		}catch(Exception e){
+			throw new RuntimeException(e);
+		}
+	}
+}
