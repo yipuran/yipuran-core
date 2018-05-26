@@ -1,5 +1,8 @@
 # yipuran-core
-Java application framework
+Java core application framework
+#### 目的
+頻繁に利用される基盤に近い処理をかき集めたパッケージで再利用が目的
+Throwable なラムダ、GenericBuilder　など広範囲ではある。各機能は Javadoc を参照
 
 ## Document
 Extract doc/yipuran-core-doc.zip and see the Javadoc
