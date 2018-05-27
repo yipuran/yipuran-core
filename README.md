@@ -6,7 +6,7 @@ Throwable なラムダ、GenericBuilder　など広範囲ではある。各機�
 
 ## Document
 Extract doc/yipuran-core-doc.zip and see the Javadoc
-
+or [Wiki Page](../../wiki)
 
 ## Setup pom.xml
 ```
