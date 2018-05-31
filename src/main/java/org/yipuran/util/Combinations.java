@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * 順列組合せ.
- * コンストラクタで生成、結果List<List<T>>を取得、または Iterator<List<T>>を iterator()で取得する。
+ * 順列組合せ nCr 算出.
+ * コンストラクタで生成、結果List&lt;List&lt;T&gt;&gt;を取得、または Iterator&lt;List&lt;T&gt;&gt;を iterator()で取得する。
  */
 public class Combinations<T> implements Iterator{
 	private List<List<T>> combinations;
@@ -45,7 +45,7 @@ public class Combinations<T> implements Iterator{
 	}
 	/**
 	 * コンストラクタ.
-	 * @param list List<T>生成前のリスト
+	 * @param list List&lt;T&gt;生成前のリスト
 	 * @param r 組み合わせ数 nCr の r
 	 */
 	public Combinations(List<T> list, int r){
@@ -70,7 +70,7 @@ public class Combinations<T> implements Iterator{
 	}
 	/**
 	 * 組み合わせ結果リスト抽出.
-	 * @return List<List<T>>
+	 * @return List&lt;List&lt;T&gt;&gt;
 	 */
 	public List<List<T>> result(){
 		return this.combinations;

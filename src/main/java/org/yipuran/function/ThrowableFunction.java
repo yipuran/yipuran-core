@@ -55,9 +55,9 @@ public interface ThrowableFunction<T, R> extends Serializable{
 	}
 	/**
 	 * ThrowableFunction 生成.
-	 * @param function 例外スローする Function<T, R>処理
+	 * @param function 例外スローする Function&lt;T, R&gt;処理
 	 * @param onCatch Exception捕捉処理 , R を返すもしくは、null を返さなければならない。
-	 * @return Function<T, R>
+	 * @return Function&lt;T, R&gt;
 	 */
 	public static <T, R> Function<T, R> of(ThrowableFunction<T, R> function, BiFunction<T, Exception, R> onCatch){
 		return  t->{
@@ -70,8 +70,8 @@ public interface ThrowableFunction<T, R> extends Serializable{
 	}
 	/**
 	 * ThrowableFunction 生成（外に例外スロー）.
-	 * @param function 例外スローする Function<T, R>処理
-	 * @return Function<T, R>
+	 * @param function 例外スローする Function&lt;T, R&gt;処理
+	 * @return Function&lt;T, R&gt;
 	 */
 	public static <T, R> Function<T, R> of(ThrowableFunction<T, R> function){
 		return  t->{

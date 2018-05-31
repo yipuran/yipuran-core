@@ -20,7 +20,7 @@ import org.yipuran.util.SimplePair;
  * , (p, x)->{
  *     // 例外捕捉処理、 x は Exception
  * });
- *	  p は、t と u の SimplePair<T, U>
+ *	  p は、t と u の SimplePair&lt;T, U&gt;
  * </PRE>
  */
 @FunctionalInterface
@@ -41,9 +41,9 @@ public interface ThrowableBiConsumer<T, U> extends Serializable{
    }
 	/**
 	 * ThrowableBiConsumer 生成.
-	 * @param consumer 例外スローする BiConsumer<T, U>処理
-	 * @param onCatch Exception捕捉処理、BiConsumer<SimplePair<T, U>, Exception>、
-	 * @return BiConsumer<T, U>
+	 * @param consumer 例外スローする BiConsumer&lt;T, U&gt;処理
+	 * @param onCatch Exception捕捉処理、BiConsumer&lt;SimplePair&lt;T, U&gt;, Exception&gt;、
+	 * @return BiConsumer&lt;T, U&gt;
 	 */
 	public static <T, U> BiConsumer<T, U> of(ThrowableBiConsumer<T, U> consumer, BiConsumer<SimplePair<T, U>, Exception> onCatch){
 		return (t, u)->{
@@ -56,8 +56,8 @@ public interface ThrowableBiConsumer<T, U> extends Serializable{
 	}
 	/**
 	 * ThrowableBiConsumer 生成（外に例外スロー）.
-	 * @param consumer 例外スローする BiConsumer<T, U>処理
-	 * @return BiConsumer<T, U>
+	 * @param consumer 例外スローする BiConsumer&lt;T, U&gt;処理
+	 * @return BiConsumer&lt;T, U&gt;
 	 */
 	public static <T, U> BiConsumer<T, U> of(ThrowableBiConsumer<T, U> consumer){
 		return (t, u)->{

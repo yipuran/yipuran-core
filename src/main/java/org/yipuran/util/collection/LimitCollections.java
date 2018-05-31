@@ -14,17 +14,17 @@ import java.util.TreeSet;
  * <pre>
  * コレクションへの追加の制限インターフェースを実装したインスタンスを指定して挿入時制限付きコレクションを
  * 生成する。
- *     public interface ListPredicate<E>     →  ArrayList 生成に使用する Predicate
- *     public interface MapPredicate<K,V>    →  HashMap 生成に使用する Predicate
- *     public interface TreePredicate<E>     →  TreeSet,TreeMap 生成に使用する Predicate
- *     public interface ComparePredicate<E>  →  Comparator 指定のTreeSet,TreeMap 生成に使用する Predicate
+ *     public interface ListPredicate&lt;E&gt;     →  ArrayList 生成に使用する Predicate
+ *     public interface MapPredicate&lt;K, V&gt;    →  HashMap 生成に使用する Predicate
+ *     public interface TreePredicate&lt;E&gt;     →  TreeSet,TreeMap 生成に使用する Predicate
+ *     public interface ComparePredicate&lt;E&gt;  →  Comparator 指定のTreeSet,TreeMap 生成に使用する Predicate
  * これら Predicate を引数に持つコレクション生成メソッドを提供する。
- *     public static <E>   List<E>  createArrayList(ListPredicate<E> predicate)        → 制限付き ArrayList 生成
- *     public static <K,V> Map<K,V> createHashMap(MapPredicate<K,V> predicate)         → 制限付き HashMap 生成
- *     public static <E>   Set<E>   createTreeSet(final TreePredicate<E> predicate)    → 制限付き TreeSet 生成
- *     public static <K,V> Map<K,V> createTreeMap(final TreePredicate<K> predicate)    → 制限付き TreeMap 生成
- *     public static <E>   Set<E>   createTreeSet(final ComparePredicate<E> predicate) → 制限付き Comparator 指定の TreeSet 生成
- *     public static <K,V> Map<K,V> createTreeMap(final ComparePredicate<K> predicate) → 制限付き Comparator 指定の TreeMap 生成
+ *     public static &lt;E&gt;   List&lt;E&gt;  createArrayList(ListPredicate&lt;E&gt; predicate)        → 制限付き ArrayList 生成
+ *     public static &lt;K, V&gt; Map&lt;K, V&gt; createHashMap(MapPredicate&lt;K, V&gt; predicate)         → 制限付き HashMap 生成
+ *     public static &lt;E&gt;   Set&lt;E&gt;   createTreeSet(final TreePredicate&lt;E&gt; predicate)    → 制限付き TreeSet 生成
+ *     public static &lt;K, V&gt; Map&lt;K, V&gt; createTreeMap(final TreePredicate<K> predicate)    → 制限付き TreeMap 生成
+ *     public static &lt;E&gt;   Set&lt;E&gt;   createTreeSet(final ComparePredicate&lt;E&gt; predicate) → 制限付き Comparator 指定の TreeSet 生成
+ *     public static &lt;K, V&gt; Map&lt;K, V&gt; createTreeMap(final ComparePredicate<K> predicate) → 制限付き Comparator 指定の TreeMap 生成
  * </pre>
  */
 public final class LimitCollections{
@@ -33,7 +33,7 @@ public final class LimitCollections{
    /**
     * 挿入時制限付きArrayList作成.
     * @param predicate ListPredicate実装インスタンスを指定
-    * @return List<E>
+    * @return List&lt;E&gt;
     */
    public static <E> List<E> createArrayList(final ListPredicate<E> predicate){
       return new ArrayList<E>(){
@@ -73,7 +73,7 @@ public final class LimitCollections{
    /**
     * 挿入時制限付きHashMap作成.
     * @param predicate MapPredicate実装インスタンスを指定
-    * @return Map<K,V>
+    * @return Map&lt;K, V&gt;
     */
    public static <K,V> Map<K,V> createHashMap(final MapPredicate<K,V> predicate){
       return new HashMap<K,V>(){
@@ -100,7 +100,7 @@ public final class LimitCollections{
     * 挿入時制限付きTreeSet作成.
     * <br/>  Comparator を指定しません。要素 E の java.lang.Comparable 実装に従います。
     * @param predicate TreePredicate実装インスタンスを指定
-    * @return Set<E>
+    * @return Set&lt;E&gt;
     */
    public static <E> Set<E> createTreeSet(final TreePredicate<E> predicate){
       return new TreeSet<E>(){
@@ -122,7 +122,7 @@ public final class LimitCollections{
    /**
     * 挿入時制限付き Comparator が指定されたTreeSet作成.
     * @param predicate ComparePredicate実装インスタンスを指定
-    * @return Set<E>
+    * @return Set&lt;E&gt;
     */
    public static <E> Set<E> createTreeSet(final ComparePredicate<E> predicate){
      return new TreeSet<E>(new Comparator<E>(){
@@ -139,7 +139,7 @@ public final class LimitCollections{
     * 挿入時制限付きTreeMap作成.
     * <br/>  Comparator を指定しません。Key K の java.lang.Comparable 実装に従います。
     * @param predicate TreePredicate実装インスタンスを指定
-    * @return Map<K,V>
+    * @return Map&lt;K, V&gt;
     */
    public static <K,V> Map<K,V> createTreeMap(final TreePredicate<K> predicate){
       return new TreeMap<K,V>(new Comparator<K>(){
@@ -155,7 +155,7 @@ public final class LimitCollections{
    /**
     * 挿入時制限付き Comparator が指定されたTreeMap作成.
     * @param predicate ComparePredicate実装インスタンスを指定
-    * @return Map<K,V>
+    * @return Map&lt;K, V&gt;
     */
    public static <K,V> Map<K,V> createTreeMap(final ComparePredicate<K> predicate){
       return new TreeMap<K,V>(new Comparator<K>(){

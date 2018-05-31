@@ -29,9 +29,9 @@ public interface ThrowableSupplier<R> extends Serializable{
 
 	/**
 	 * ThrowableSupplier 生成.
-	 * @param supplier 例外スローする Supplier<T>処理
+	 * @param supplier 例外スローする Supplier&lt;R&gt;処理
 	 * @param onCatch Exception捕捉処理 , 値を返さなければならない。
-	 * @return Supplier<R>
+	 * @return Supplier&lt;R&gt;
 	 */
 	public static <R> Supplier<R> to(ThrowableSupplier<? extends R> supplier, Function<Exception, R> onCatch){
 		return ()->{
@@ -44,8 +44,8 @@ public interface ThrowableSupplier<R> extends Serializable{
 	}
 	/**
 	 * ThrowableSupplier 生成（外に例外スロー）.
-	 * @param supplier 例外スローする Supplier<T>処理
-	 * @return Supplier<R>
+	 * @param supplier 例外スローする Supplier処理
+	 * @return Supplier&lt;R&gt;
 	 */
 	public static <R> Supplier<R> to(ThrowableSupplier<? extends R> supplier){
 		return ()->{

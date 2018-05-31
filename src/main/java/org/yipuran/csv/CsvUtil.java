@@ -12,8 +12,9 @@ import java.util.List;
 /**
  * ＣＳＶユーティリティ.
  * <pre>
- * ＣＳＶを読込カンマ区切りをsplitした結果のString[] のリストを生成する。
- * 対象ＣＳＶサイズが膨大なサイズである場合は、Csvparser によるコールバック実行を奨励する
+ * 文字列split（列の縮小を回避）、List&lt;String&gt; → CSV 1 Line ダブルクオート
+ * String... → CSV 1 Line ダブルクオート
+ * などの処理
  * </pre>
  * @since 1.1.2
  */
@@ -21,8 +22,8 @@ public final class CsvUtil{
 	private CsvUtil(){}
 
 	/**
-	 * List<String> → CSV 1 Line ダブルクオート
-	 * @param list List<String>
+	 * List&lt;String&gt; → CSV 1 Line ダブルクオート
+	 * @param list List&lt;String&gt;
 	 * @return csv 1line string
 	 */
 	public static String csvline(List<String> list){
@@ -56,7 +57,8 @@ public final class CsvUtil{
 	}
 
 	/**
-	 * ＣＳＶ→List<String>
+	 * ＣＳＶ→List&lt;String&gt;
+	 * 対象ＣＳＶサイズが膨大なサイズである場合は、使用すべきでない。
 	 * @param filepath ＣＳＶファイルパス
 	 * @param quotSwitch true=括り文字あり
 	 * @return String[] リスト

@@ -25,7 +25,7 @@ import org.yipuran.function.ThrowableConsumer;
  *     ZIPファイル名拡張子 → .zip
  * （圧縮）
  * Supplier<Collection<FileCollection>> = ファイルコレクション（FileCollection）で指定する対象を
- * Collection<String> compress(String targzPath) で圧縮する。
+ * Collection&lt;String&gt; compress(String targzPath) で圧縮する。
  * メソッド戻り値は、tarエントリ名 Collection
  * （展開）
  * void decompress(String zipPath, String dirPath) で展開する。
@@ -40,16 +40,16 @@ public interface ZipProcessor extends Supplier<Collection<FileCollection>>{
 	 * Supplier で渡す FileCollection の渡し方で単一か複数か決まる。
 	 * 例１）
 	 *    // targetPath配下を圧縮対象にする場合
-	 *    List<FileCollection> fileCollections =
+	 *    List&lt;FileCollection&gt; fileCollections =
 	 *    Arrays.stream(new File(targetPath).listFiles()).map(e->FileCollection.of(e.getAbsolutePath())).collect(Collectors.toList());
 	 *    ZipProcessor processor = ()->fileCollections;
-	 *    Collection<String> entries = processor.compress(zipPath);
+	 *    Collection&lt;String&gt; entries = processor.compress(zipPath);
 	 *
 	 * 例２）
 	 *    // １つのディレクトリツリーで圧縮
 	 *    FileCollection fileCollection = FileCollection.of(targetPath);
 	 *    ZipProcessor processor = ()->Arrays.asList(fileCollection);
-	 *    Collection<String> entries = processor.compress(zipPath);
+	 *    Collection&lt;String&gt; entries = processor.compress(zipPath);
 	 *
 	 * </PRE>
 	 * @param zipPath 作成する ZIPファイルパス、 *.zip
@@ -84,10 +84,10 @@ public interface ZipProcessor extends Supplier<Collection<FileCollection>>{
 	/**
 	 * zip 圧縮実行（対象制限）.
 	 * <PRE>
-	 * Predicate<File> で、tar作成対象を制限する。任意ディレクトリパスなど制限するために使用する。
+	 * Predicate&lt;File&gt; で、tar作成対象を制限する。任意ディレクトリパスなど制限するために使用する。
 	 * </PRE>
 	 * @param zipPath 作成する zip ファイルパス、 *.zip
-	 * @param p Predicate<File>制限規則の付与
+	 * @param p Predicate&lt;File&gt;制限規則の付与
 	 * @return ZIPエントリ名 Collection
 	 */
 	public default Collection<String> compress(String zipPath, Predicate<File> p){
@@ -120,7 +120,7 @@ public interface ZipProcessor extends Supplier<Collection<FileCollection>>{
 	 * ZIPファイル展開.
 	 * @param zipPath ZIPファイルパス
 	 * @param dirPath 展開先ディレクトリパス
-	 * @return Set<String> ZIPエントリ名 Collection
+	 * @return Set&lt;String&gt; ZIPエントリ名 Collection
 	 */
 	public static Set<String> decompress(String zipPath, String dirPath){
 		TreeSet<String> entries = new TreeSet<>();
@@ -156,7 +156,7 @@ public interface ZipProcessor extends Supplier<Collection<FileCollection>>{
 	/**
 	 * エントリ名コレクション.
 	 * @param zipPath ZIPファイルパス、 *.zip
-	 * @return Set<String> ZIPエントリ名 Collection
+	 * @return Set&lt;String&gt; ZIPエントリ名 Collection
 	 */
 	public static Set<String> viewPath(String zipPath){
 		TreeSet<String> entries = new TreeSet<>();

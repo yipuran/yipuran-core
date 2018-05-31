@@ -5,8 +5,8 @@ import java.util.AbstractMap;
 
 /**
  * SimplePair.
- * @param <K>
- * @param <V>
+ * @param &lt;K&gt;
+ * @param &lt;V&gt;
  */
 public class SimplePair<K, V> extends AbstractMap.SimpleEntry<K, V> implements Serializable{
 	/**

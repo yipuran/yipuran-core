@@ -18,11 +18,12 @@ import java.io.PrintWriter;
  *     実装クラスを用意、sample.bat を起動する場合、
  *
  *     public class Aprocess extends AbstractProcessExec{
- *         @Override
+ *         ＠Override
  *         public String arrange(){
  *                return "cmd.exe /c sample.bat param1 param2";
  *             }
  *         }
+ *     }
  *     呼び出し側
  *         // new もしくは、DI で、具象クラスを生成
  *         ProcessExecutor  a = new Aprocess();

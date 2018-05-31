@@ -21,7 +21,7 @@ import org.yipuran.util.SimplePair;
  * , (p, x)->{
  *     // 例外捕捉処理、 x は Exception
  * }).forEach(e->{});
- *     p は、t と u の SimplePair<T, U>
+ *     p は、t と u の SimplePair&lt;T, U&gt;
  * </PRE>
  *
  */
@@ -92,9 +92,9 @@ public interface ThrowableBiPredicate<T, U> extends Serializable{
 
 	/**
 	 * ThrowableBiPredicate 生成.
-	 * @param p 例外スローする Predicate<T>処理
+	 * @param p 例外スローする ThrowableBiPredicate&lt;T, U&gt;処理
 	 * @param onCatch Exception捕捉処理 , boolean値を返さなければならない。
-	 * @return Predicate<T>
+	 * @return Predicate&lt;T&gt;
 	 */
 	public static <T, U> BiPredicate<T, U> of(ThrowableBiPredicate<T, U> p, BiFunction<SimplePair<T, U>, Exception, Boolean> onCatch){
 		return (t, u)->{
@@ -107,8 +107,8 @@ public interface ThrowableBiPredicate<T, U> extends Serializable{
 	}
 	/**
 	 * ThrowableBiPredicate 生成（外に例外スロー）.
-	 * @param p 例外スローする Predicate<T>処理
-	 * @return Predicate<T>
+	 * @param p 例外スローする Predicate&lt;T&gt;処理
+	 * @return Predicate&lt;T&gt;
 	 */
 	public static <T, U> BiPredicate<T, U> of(ThrowableBiPredicate<T, U> p){
 		return (t, u)->{

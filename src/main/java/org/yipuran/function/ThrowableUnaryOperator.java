@@ -27,9 +27,9 @@ public interface ThrowableUnaryOperator<T> extends Serializable{
 	}
 	/**
 	 * ThrowableUnaryOperator 生成.
-	 * @param u 例外スローする UnaryOperator<T>処理
+	 * @param u 例外スローする UnaryOperator&lt;T&gt;処理
 	 * @param onCatch Exception捕捉処理 , 値を返さなければならない。
-	 * @return UnaryOperator<T>
+	 * @return UnaryOperator&lt;T&gt;
 	 */
 	public static <T> UnaryOperator<T> of(ThrowableUnaryOperator<T> u, BiFunction<T, Exception, T> onCatch){
 		return  t->{
@@ -42,8 +42,8 @@ public interface ThrowableUnaryOperator<T> extends Serializable{
 	}
 	/**
 	 * ThrowableUnaryOperator 生成（外に例外スロー）.
-	 * @param u 例外スローする UnaryOperator<T>処理
-	 * @return UnaryOperator<T>
+	 * @param u 例外スローする UnaryOperator&lt;T&gt;処理
+	 * @return UnaryOperator&lt;T&gt;
 	 */
 	public static <T> UnaryOperator<T> of(ThrowableUnaryOperator<T> u){
 		return  t->{

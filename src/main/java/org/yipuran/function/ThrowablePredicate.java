@@ -91,9 +91,9 @@ public interface ThrowablePredicate<T> extends Serializable{
 	}
 	/**
 	 * ThrowablePredicate 生成.
-	 * @param p 例外スローする Predicate<T>処理
+	 * @param p 例外スローする Predicate&lt;T&gt;処理
 	 * @param onCatch Exception捕捉処理 , boolean値を返さなければならない。
-	 * @return Predicate<T>
+	 * @return Predicate&lt;T&gt;
 	 */
 	public static <T> Predicate<T> of(ThrowablePredicate<T> p, BiFunction<T, Exception, Boolean> onCatch){
 		return t->{
@@ -106,8 +106,8 @@ public interface ThrowablePredicate<T> extends Serializable{
 	}
 	/**
 	 * ThrowablePredicate 生成（外に例外スロー）.
-	 * @param p 例外スローする Predicate<T>処理
-	 * @return Predicate<T>
+	 * @param p 例外スローする Predicate&lt;T&gt;処理
+	 * @return Predicate&lt;T&gt;
 	 */
 	public static <T> Predicate<T> of(ThrowablePredicate<T> p){
 		return t->{

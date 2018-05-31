@@ -39,9 +39,9 @@ public interface ThrowableConsumer<T> extends Serializable{
 	}
 	/**
 	 * ThrowableConsumer 生成.
-	 * @param consumer 例外スローする Consumer<T>処理
+	 * @param consumer 例外スローする Consumer&lt;T&gt;処理
 	 * @param onCatch Exception捕捉処理
-	 * @return Consumer<T>
+	 * @return Consumer&lt;T&gt;
 	 */
 	public static <T> Consumer<T> of(ThrowableConsumer<T> consumer, BiConsumer<T, Exception> onCatch){
 		return t->{
@@ -54,8 +54,8 @@ public interface ThrowableConsumer<T> extends Serializable{
 	}
 	/**
 	 * ThrowableConsumer 生成（外に例外スロー）.
-	 * @param consumer 例外スローする Consumer<T>処理
-	 * @return Consumer<T>
+	 * @param consumer 例外スローする Consumer&lt;T&gt;処理
+	 * @return Consumer&lt;T&gt;
 	 */
 	public static <T> Consumer<T> of(ThrowableConsumer<T> consumer){
 		return t->{

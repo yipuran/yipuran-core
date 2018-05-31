@@ -9,7 +9,10 @@ import java.util.function.Predicate;
 
 /**
  * ファイルコレクション.
+ * <PRE>
+ * ファイルツリー操作→コレクション
  * （注意）シンボリックリンクが存在する場合、通常に解釈される。
+ * </PRE>
  */
 public final class FileCollection implements Serializable{
 	private File file;
@@ -33,37 +36,37 @@ public final class FileCollection implements Serializable{
 	}
 	/**
 	 * 走査実行→コレクション取得.
-	 * @return List<File>
+	 * @return List&lt;File&gt;
 	 */
 	public List<File> scan(){
 		return parse(file, new ArrayList<>());
 	}
 	/**
 	 * Predicate走査実行→コレクション取得.
-	 * @param p 検査するPredicate<File>
-	 * @return List<File>
+	 * @param p 検査するPredicate&lt;File&gt;
+	 * @return List&lt;File&gt;
 	 */
 	public List<File> scan(Predicate<File> p){
 		return parse(file, new ArrayList<>(), p);
 	}
 	/**
 	 * 走査 Consumer実行.
-	 * @param c Consumer
+	 * @param c Consumer&lt;File&gt;
 	 */
 	public void scan(Consumer<File> c){
 		parse(file, c);
 	}
 	/**
 	 * Predicate走査 Consumer実行.
-	 * @param p 検査するPredicate<File>
-	 * @param c Consumer
+	 * @param p 検査するPredicate&lt;File&gt;
+	 * @param c Consumer&lt;File&gt;
 	 */
 	public void scan(Predicate<File> p, Consumer<File> c){
 		parse(file, p, c);
 	}
 	/**
 	 * Predicate検査一致の成否.
-	 * @param p 検査するPredicate<File>
+	 * @param p 検査するPredicate&lt;File&gt;
 	 * @return true=１つ以上一致するものがある。false=一致するものが存在しない。
 	 */
 	public boolean anyMatch(Predicate<File> p){

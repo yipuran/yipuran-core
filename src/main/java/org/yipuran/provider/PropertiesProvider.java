@@ -12,7 +12,11 @@ import javax.inject.Named;
 
 /**
  * プロパティ Provider.
+ * <PRE>
  * PropertiesProviderModule でインジェクトが約束される。
+ * Nameアノテーション PROPERTIES でプロパティファイルPATH
+ * Nameアノテーション CHARSET で文字キャラクタセットでインスタンス生成する
+ * </PRE>
  */
 public class PropertiesProvider implements IPropertiesProvider{
 	private String filePath;

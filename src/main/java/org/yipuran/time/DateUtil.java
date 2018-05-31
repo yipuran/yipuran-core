@@ -43,12 +43,12 @@ public final class DateUtil{
 	}
 
 	/**
-	 * 日付妥当性チェック→Optional<LocalDate>生成.
+	 * 日付妥当性チェック→Optional&lt;LocalDate&gt;生成.
 	 * LocalDate の Optional を取得して 厳密なチェック(lenient=false)のもと 異常であれば ParseException をスローする。
 	 * null は、返却値 Optional の orElseThrow or orElse を処理するためのメソッド
 	 * @param string 日付文字列
 	 * @param pattern 日付書式
-	 * @return Optional<LocalDate>
+	 * @return Optional&lt;LocalDate&gt;
 	 * @throws java.text.ParseException
 	 */
 	public static Optional<LocalDate> optionalDate(String string, String pattern){
@@ -63,14 +63,14 @@ public final class DateUtil{
 
 	/**
 	 * 重複発生抽出.
-	 *
+	 * <PRE>
 	 * 日付期間 DateSpan を実装のリストから、期間が重複している重複日と重複した要素のリストの BiConsumer を実行する。
 	 * 例）
 	 * 		DateUtil.booklist(list, (k, t)->{
 	 * 			// k = 重複発生日
 	 * 			// t = 重複発生した日、１日に該当する要素のリスト、２個以上のリスト
 	 * 		});
-	 *
+	 * </PRE>
 	 * @param list 重複検査対象のDateSpan実装リスト
 	 * @param bookConsumer
 	 */
