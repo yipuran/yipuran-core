@@ -29,7 +29,7 @@ public final class HttpClientBuilder{
 		}
 	}
 	/**
-	 * ApiClientBuilder生成.
+	 * HttpClientBuilder生成.
 	 * @param path HTTP要求するAPI要求先のURL
 	 * @param method HTTPメソッド、"POST" か "GET" を指定
 	 * @return HttpClientBuilder

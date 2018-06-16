@@ -12,7 +12,7 @@ import org.yipuran.csv4j.CSVWriter;
 /**
  * ＣＳＶ生成インターフェース.
  * <PRE>
- * List<String[]> list = new ArrayList<>();
+ * List&lt;String[]&gt; list = new ArrayList&lt;&gt;();
  *    // list に格納
  * CsvCreator c = ()->()->list;
  *    // 宣言

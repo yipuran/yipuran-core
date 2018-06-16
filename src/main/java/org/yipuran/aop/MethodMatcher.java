@@ -12,7 +12,7 @@ import com.google.inject.matcher.Matcher;
  * メソッドインターセプトMatcher .
  * <pre>
  * com.google.inject.Module 実装クラスのBinder#bindInterceptor の２番目の引数で
- * 指定するアノテーションのMatcher　 バインド定義で使用する。
+ * 指定するアノテーションのMatcherバインド定義で使用する。
  *
  * メソッドに指定アノテーションでが付いていてアノテーションで指定する value 値と指定文字列が一致する時
  * または、メソッドに付けたアノテーションが指定アノテーションと一致した時にインターセプトする。
@@ -35,7 +35,7 @@ import com.google.inject.matcher.Matcher;
  *
  * 例のように、メソッドに付けたアノテーションが文字列キー引数を持たずに、
  * 指定するアノテーションだけの一致で、インターセプトをバインドする場合は、
- * 　　public static Matcher<AnnotatedElement> annotatedWith(final Class<? extends Annotation> annotation)
+ * 　　public static Matcher&lt;AnnotatedElement&gt; annotatedWith(final Class&lt;? extends Annotation&gt; annotation)
  * を使用する。
  *
  * </pre>

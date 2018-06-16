@@ -6,11 +6,11 @@ import org.yipuran.csv4j.CSVLineProcessor;
 
 /**
  * CsvLineProcessor.
+ * <PRE>
  * CsvStreamProcessor ＣＳＶ読込みProcessorで実行する処理 org.yipuran.csv4j.CSVLineProcessor の継承で
  * org.yipuran.csv4j.CSVLineProcessor の processDataLine をラムダで実行する為のインターフェース
- * <br/>
  * CsvStreamProcessor ヘッダ無し読込みで使用する。
- * <PRE>
+ *
  * CsvStreamProcessor  processor = new CsvStreamProcessor();
  * processor.readNoheader(new InputStreamReader(in, "UTF-8"), (n, l)->{
  *      // n = 行番号

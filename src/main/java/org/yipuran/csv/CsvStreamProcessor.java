@@ -19,7 +19,7 @@ import org.yipuran.util.SimplePair;
  * <PRE>
  * ヘッダ有り読込み、
  * BiConsumer が実行される。ヘッダの列名をキーで列インデックス（０～ｎ）をのMapと
- * 行番号とＣＳＶ行である List<String>のkey-valueである  org.yipuran.util.SimplePair<Integer, List<String>> が
+ * 行番号とＣＳＶ行である List&lt;String&gt;のkey-valueである  org.yipuran.util.SimplePair&lt;Integer, List&lt;String&gt;&gt; が
  * BiConsumer の引数である。
  *
  * CsvStreamProcessor  processor = new CsvStreamProcessor();
@@ -36,7 +36,7 @@ import org.yipuran.util.SimplePair;
  * CsvStreamProcessor  processor = new CsvStreamProcessor();
  * processor.readNoheader(new InputStreamReader(in, "UTF-8"), (n, l)->{
  *      // n = 行番号
- *      // l = １行の Line<String>
+ *      // l = １行の Line&lt;String&gt;
  *      l.stream().forEach(e->{
  *         System.out.print("[" + e + "]");
  *      });

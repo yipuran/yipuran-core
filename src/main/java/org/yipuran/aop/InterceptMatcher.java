@@ -8,7 +8,7 @@ import com.google.inject.matcher.Matcher;
 
 /**
  * インターセプトMatcher .
- * <pre>
+ * <PRE>
  * ＠Intercept限定のメソッドの Matcher
  * com.google.inject.Module 実装クラスのBinder#bindInterceptor の２番目の引数で
  * 指定するアノテーションのMatcher  バインド定義で使用する。
@@ -22,10 +22,10 @@ import com.google.inject.matcher.Matcher;
  *                       ,new ALogicIntercepter());
  *
  * InterceptMatcher を使用する代わりに、MethodMatcherの
- *        public static Matcher<AnnotatedElement> annotatedWith(final Class<? extends Annotation> annotation
+ *        public static Matcher&lt;AnnotatedElement&gt; annotatedWith(final Class<? extends Annotation> annotation
  *                                                             ,final String reqStr)
  * を使っても同じことである。
- * </pre>
+ * </PRE>
  */
 public final class InterceptMatcher {
 	private InterceptMatcher(){}
