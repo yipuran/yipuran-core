@@ -2,7 +2,7 @@
 <modelVersion>4.0.0</modelVersion>
 <groupId>org.yipuran.core</groupId>
 <artifactId>yipuran-core</artifactId>
-<version>4.2</version>
+<version>4.1</version>
 
 <name>yipuran-core</name>
 <url>https://github.com/yipuran/yipuran-core</url>
@@ -11,7 +11,7 @@
 <properties>
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	<github.global.server>github</github.global.server>
-	<guice.version>4.2.0</guice.version>
+	<guice.version>4.1.0</guice.version>
 </properties>
 
 <distributionManagement>
@@ -27,6 +27,16 @@
 		<groupId>org.slf4j</groupId>
 		<artifactId>slf4j-api</artifactId>
 		<version>1.7.25</version>
+	</dependency>
+	<dependency>
+		<groupId>ch.qos.logback</groupId>
+		<artifactId>logback-core</artifactId>
+		<version>1.1.8</version>
+	</dependency>
+	<dependency>
+		<groupId>ch.qos.logback</groupId>
+		<artifactId>logback-classic</artifactId>
+		<version>1.1.8</version>
 	</dependency>
 	<dependency>
 		<groupId>aopalliance</groupId>
