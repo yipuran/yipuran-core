@@ -9,6 +9,9 @@ import com.google.inject.util.Providers;
 
 /**
  * IPropertiesProvider ← PropertiesProvider 注入 Module.
+ * <PRE>
+ * 注意：　properties ファイルパスを指定
+ * </PRE>
  */
 public class PropertiesProviderModule extends AbstractModule{
 	private String path;

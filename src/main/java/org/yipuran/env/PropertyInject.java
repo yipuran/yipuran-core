@@ -9,15 +9,20 @@ import java.lang.annotation.Target;
  * <pre>
  * PropertyBindModule を使用したProperties変数へのインジェクトを約束する。
  *
- *      ＠Inject ＠PropertyInject private Properties prop;
- *      に対して、
- *      Injector injector = Guice.createInjector(new PropertyBindModule("aaa"));
- *      とすることで、aaa.properties を読んでPropertiesにインジェクトする。
- * propertiesファイルが見つからない場合、空のPropertiesがインジェクトされる。
+ * ＠PropertyInject を使用するのが約束で、＠PropertyInject の value 有無で
  *
- * PropertyBindModuleコンストラクタ引数有無に関わらず、PropertyInject アノテーションでリソースキーを指定すると、
+ *  value 無し→ PropertyBindModule コンストラクタで指定する Properties だけ Properties を読み込める
+ *  value 有り→ PropertyBindModule コンストラクタ指定に関係なく、＠PropertyInject の valueが指定する Properties を読み込める
+ *
+ *  ＠Inject ＠PropertyInject private Properties prop;
+ *   に対して、
+ *   Injector injector = Guice.createInjector(new PropertyBindModule("aaa"));
+ *   とすることで、aaa.properties を読んでPropertiesにインジェクトする。
+ *   propertiesファイルが見つからない場合、空のPropertiesがインジェクトされる。
+ *
+ *   コンストラクタ引数有無に関わらず、PropertyInject アノテーションでリソースキーを指定すると、
  *   PropertyInject で指定したリソースキーが優先される
- *       ＠Inject ＠PropertyInject("aaa") private Properties prop;
+ *        ＠Inject ＠PropertyInject("aaa") private Properties prop;
  *      → new PropertyBindModule() 実行、new PropertyBindModule("bbb") 実行でも
  *      aaa.properties を読込もうとする。
  * </pre>

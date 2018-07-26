@@ -1,8 +1,13 @@
 package org.yipuran.env;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Properties;
+import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
 import org.slf4j.LoggerFactory;
@@ -18,9 +23,14 @@ import com.google.inject.spi.TypeListener;
  * プロパティ → Properties 変数へのバインド定義.
  * <pre>
  * Properties変数で、@Inject @PropertyInject が付いてるものを
- * コンストラクタで指定するリソースKey.properties を読込みインジェクトする。
+ * コンストラクタで指定するリソース Key.properties を読込みインジェクトする。
  *
- *   ＠Inject ＠PropertyInject private Properties prop;
+ * ＠PropertyInject を使用するのが約束で、＠PropertyInject の value 有無で
+ *
+ *  value 無し→ PropertyBindModule コンストラクタで指定する Properties だけ Properties を読み込める
+ *  value 有り→ PropertyBindModule コンストラクタ指定に関係なく、＠PropertyInject の valueが指定する Properties を読み込める
+ *
+ *  ＠Inject ＠PropertyInject private Properties prop;
  *   に対して、
  *   Injector injector = Guice.createInjector(new PropertyBindModule("aaa"));
  *   とすることで、aaa.properties を読んでPropertiesにインジェクトする。
@@ -28,7 +38,7 @@ import com.google.inject.spi.TypeListener;
  *
  *   コンストラクタ引数有無に関わらず、PropertyInject アノテーションでリソースキーを指定すると、
  *   PropertyInject で指定したリソースキーが優先される
- *       ＠Inject ＠PropertyInject("aaa") private Properties prop;
+ *        ＠Inject ＠PropertyInject("aaa") private Properties prop;
  *      → new PropertyBindModule() 実行、new PropertyBindModule("bbb") 実行でも
  *      aaa.properties を読込もうとする。
  * </pre>
@@ -37,7 +47,7 @@ public class PropertyBindModule extends AbstractModule{
 	String resourceKey;
 	/**
 	 * デフォルトコンストラクタ.
-	 * <br>PropertyInject アノテーションでリソースキーを指定するがある
+	 * <br>PropertyInject アノテーションでリソースキーを指定する必要がある
 	 */
 	public PropertyBindModule(){}
 	public PropertyBindModule(String resourceKey){
@@ -76,7 +86,18 @@ public class PropertyBindModule extends AbstractModule{
 										? PropertyBindModule.this.resourceKey
 										: value_PropertyInject;
 						if (resourcekey != null && resourcekey.length() > 0){
-							ResourceBundle rs = ResourceBundle.getBundle(resourcekey);
+							ResourceBundle rs = ResourceBundle.getBundle(resourcekey, new ResourceBundle.Control(){
+								@Override
+								public ResourceBundle newBundle(String baseName, Locale locale, String format, ClassLoader loader, boolean reload)
+								throws IllegalAccessException, InstantiationException, IOException{
+									String bundleName = toBundleName(baseName, locale);
+									String resourceName = toResourceName(bundleName, "properties");
+									try(InputStreamReader sr = new InputStreamReader(loader.getResourceAsStream(resourceName), "UTF-8");
+											BufferedReader reader = new BufferedReader(sr)){
+										return new PropertyResourceBundle(reader);
+									}
+								}
+							});
 							for(String key : rs.keySet()){
 								p.setProperty(key,rs.getString(key));
 							}
