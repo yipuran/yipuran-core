@@ -1,9 +1,6 @@
 package org.yipuran.provider;
 
-import java.util.Properties;
-
 import com.google.inject.AbstractModule;
-import com.google.inject.throwingproviders.ThrowingProviderBinder;
 import com.google.inject.util.Providers;
 
 /**
@@ -13,6 +10,12 @@ import com.google.inject.util.Providers;
  *       IPropertiesProvider.namedProp() より、プロパティ名を指定
  *       IPropertiesProvider.namedCharset() より、文字セットを指定するので
  *       Names.named で指定する "PROPNAME" と "CHARSET" が他のインジェクトバインド定義と被らないようにすること
+ *
+ *
+ * （使用例）"sample.properties" を UTF-8 で読み込むインジェクションを作成
+ *
+ * Injector injector = Guice.createInjector(new PropertiesProviderModule("sample"));
+ *
  * </PRE>
  */
 public class PropertiesProviderModule extends AbstractModule{
@@ -41,9 +44,8 @@ public class PropertiesProviderModule extends AbstractModule{
 	protected void configure(){
 		binder().bind(String.class).annotatedWith(IPropertiesProvider.namedProp()).toInstance(propname);
 		binder().bind(String.class).annotatedWith(IPropertiesProvider.namedCharset()).toProvider(Providers.of(charset));
-		ThrowingProviderBinder.create(binder())
-		.bind(IPropertiesProvider.class , Properties.class)
-		.to(PropertiesProvider.class);
+		binder().bind(IPropertiesProvider.class).to(PropertiesProvider.class);
+		//ThrowingProviderBinder.create(binder()).bind(IPropertiesProvider.class , Properties.class).to(PropertiesProvider.class);
 	}
 
 }

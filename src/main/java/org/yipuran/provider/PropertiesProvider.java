@@ -33,12 +33,6 @@ import javax.inject.Named;
  *  });
  *
  *
- * IPropertiesProvider → PropertiesProvider のバインド定義は、
- *         ThrowingProviderBinder.create(this.binder())
- *          .bind(IPropertiesProvider.class, Properties.class)
- *          .to(PropertiesProvider.class);
- * と書いても同じ事である。
- *
  * </PRE>
  */
 public class PropertiesProvider implements IPropertiesProvider{

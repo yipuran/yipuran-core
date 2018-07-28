@@ -7,6 +7,18 @@ import com.google.inject.name.Names;
 import com.google.inject.throwingproviders.CheckedProvider;
 /**
  * プロパティ Provider インターフェース.
+ *
+ * （例）"sample.properties" を UTF-8 で読み込む IPropertiesProvider の場合
+ *
+ * Injector injector = Guice.createInjector(new AbstractModule(){
+ *      ＠Override
+ *      protected void configure(){
+ *         binder().bind(String.class).annotatedWith(IPropertiesProvider.namedProp()).toInstance("sample");
+ *         binder().bind(String.class).annotatedWith(IPropertiesProvider.namedCharset()).toInstance("UTF-8");
+ *         binder().bind(IPropertiesProvider.class).to(PropertiesProvider.class);
+ *      }
+ * });
+ *
  */
 public interface IPropertiesProvider extends CheckedProvider<Properties>{
 	@Override
