@@ -1,10 +1,12 @@
 package org.yipuran.provider;
 
-import java.io.FileInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Locale;
 import java.util.Properties;
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -15,55 +17,61 @@ import javax.inject.Named;
  * <PRE>
  * IPropertiesProvider を実装するクラス
  * PropertiesProviderModule でインジェクトが約束される。
- * Nameアノテーション PROPERTIES でプロパティファイルPATH
- * Nameアノテーション CHARSET で文字キャラクタセットでインスタンス生成する
+ * IPropertiesProvider の namedProp() と namedCharset() を使用して
+ * プロパティ名(.properties より前の部分）、文字キャラクタを指定、以下のように IPropertiesProvider のインスタンス生成の
+ * インジェクションを行う。
  *
- *
- * Properties 読込み先を自由に設定、複数 Properties 管理を目的に、
- * PropertiesProviderModule もしくは、任意で Moduleを指定する為に用意された
- * この PropertiesProvider を使用せずに IPropertiesProvider 実装を用意した場合の
- * インジェクトは、以下のようにする。
+ * （例）"sample.properties" を UTF-8 で読み込む IPropertiesProvider の場合
  *
  * Injector injector = Guice.createInjector(new AbstractModule(){
  *      ＠Override
  *      protected void configure(){
- *         // IPropertiesProvider実装中で Properties 読込みの為の指定 "sample.properties" を読込み
- *         binder().bind(String.class).annotatedWith(Names.named("PROP_NAME")).toInstance("sample");
- *         binder().bind(String.class).annotatedWith(Names.named("ResourcePath")).toInstance(classpath);
- *         // IPropertiesProvider実装→ Properties 提供を約束するクラスのインジェクト
- *         ThrowingProviderBinder.create(this.binder())
- *          .bind(IPropertiesProvider.class, Properties.class)
- *          .to(LaboProvider.class);
+ *         binder().bind(String.class).annotatedWith(IPropertiesProvider.namedProp()).toInstance("sample");
+ *         binder().bind(String.class).annotatedWith(IPropertiesProvider.namedCharset()).toInstance("UTF-8");
+ *         binder().bind(IPropertiesProvider.class).to(PropertiesProvider.class);
  *       }
  *  });
- *  PropertiesProvider を使用する場合は、PropertiesProviderModule で、
- *  Properties の読込みファイルPATHを指定しなければならない。
+ *
+ *
+ * IPropertiesProvider → PropertiesProvider のバインド定義は、
+ *         ThrowingProviderBinder.create(this.binder())
+ *          .bind(IPropertiesProvider.class, Properties.class)
+ *          .to(PropertiesProvider.class);
+ * と書いても同じ事である。
  *
  * </PRE>
  */
 public class PropertiesProvider implements IPropertiesProvider{
-	private String filePath;
+	private String propname;
 	private String charset;
 	/**
 	 * コンストラクタ.
-	 * @param filePath properties ファイルパス
+	 * @param propname properties 名
 	 * @param charset 文字コードセット
 	 */
 	@Inject
-	public PropertiesProvider(@Named("PROPERTIES")String filePath, @Named("CHARSET") @Nullable String charset){
-		this.filePath = filePath;
+	public PropertiesProvider(@Named("PROPNAME")String propname, @Named("CHARSET") @Nullable String charset){
+		this.propname = propname;
 		this.charset = charset==null ? "UTF-8" : charset;
 	}
-	/* (非 Javadoc)
-	 * @see org.yipuran.provide.IPropertiesProvider#get()
-	 */
+
+	/* @see org.yipuran.provide.IPropertiesProvider#get() */
 	@Override
 	public Properties get() throws IOException{
-		Properties prop = new Properties();
-		try(InputStream in = ClassLoader.getSystemClassLoader().getResourceAsStream(this.filePath)){
-			try(InputStream is = new FileInputStream(this.filePath)){
-				prop.load(new InputStreamReader(is, charset));
+		ResourceBundle rs = ResourceBundle.getBundle(propname, new ResourceBundle.Control(){
+			@Override
+			public ResourceBundle newBundle(String baseName, Locale locale, String format, ClassLoader loader, boolean reload)
+			throws IllegalAccessException, InstantiationException, IOException{
+				try(InputStreamReader sr = new InputStreamReader(
+							loader.getResourceAsStream(toResourceName(toBundleName(baseName, locale), "properties"))
+						, charset); BufferedReader reader = new BufferedReader(sr)){
+					return new PropertyResourceBundle(reader);
+				}
 			}
+		});
+		Properties prop = new Properties();
+		for(String key : rs.keySet()){
+			prop.setProperty(key,rs.getString(key));
 		}
 		return prop;
 	}

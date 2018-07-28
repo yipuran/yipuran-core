@@ -1,4 +1,4 @@
 /**
- * コンテキストプロバイダパッケージ.
+ * プロバイダパッケージ.
  */
 package org.yipuran.provider;
