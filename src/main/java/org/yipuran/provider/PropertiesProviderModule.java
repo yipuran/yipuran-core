@@ -45,7 +45,5 @@ public class PropertiesProviderModule extends AbstractModule{
 		binder().bind(String.class).annotatedWith(IPropertiesProvider.namedProp()).toInstance(propname);
 		binder().bind(String.class).annotatedWith(IPropertiesProvider.namedCharset()).toProvider(Providers.of(charset));
 		binder().bind(IPropertiesProvider.class).to(PropertiesProvider.class);
-		//ThrowingProviderBinder.create(binder()).bind(IPropertiesProvider.class , Properties.class).to(PropertiesProvider.class);
 	}
-
 }
