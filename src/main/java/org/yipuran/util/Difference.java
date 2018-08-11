@@ -30,12 +30,11 @@ public final class Difference{
 				// Delete
 				delete.accept(t);
 				return true;
-			}else{
-				if (!t.equals(u)){
-					// Modified
-					modified.accept(t, u);
-					return true;
-				}
+			}
+			if (!t.equals(u)){
+				// Modified
+				modified.accept(t, u);
+				return true;
 			}
 		}
 		return false;

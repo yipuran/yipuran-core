@@ -172,10 +172,7 @@ public class CSVReader
                         lineNumber++;
                         return line.toString(); // return what's in the buffer. Next call will return null
                     }
-                    else
-                    {
-                        return null; // eof
-                    }
+						return null; // eof
                 }
             }
 
