@@ -1,15 +1,70 @@
 package org.yipuran.util;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * StringUtils.
+ * StringUtils：String ユーティリティ.
  */
 public final class StringUtils{
 	/** private constructor. */
 	private StringUtils(){}
 
+	/**
+	 * InputStream → String 変換.
+	 * <PRE>
+	 * 呼出し後に InputStream は、close されることに注意
+	 * </PRE>
+	 * @param in InputStream
+	 * @return String
+	 * @throws IOException
+	 * @since 4.3
+	 */
+	public static String toString(InputStream in) throws IOException{
+		StringBuilder sb = new StringBuilder();
+		try(BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"))){
+			String line;
+			while((line = br.readLine()) != null){
+				sb.append(line);
+			}
+		}
+		return sb.toString();
+	}
+	/**
+	 * InputStream → String 変換（文字コード指定）.
+	 * <PRE>
+	 * 呼出し後に InputStream は、close されることに注意
+	 * </PRE>
+	 * @param in InputStream
+	 * @param charset 文字コード名
+	 * @return String
+	 * @throws IOException
+	 * @since 4.3
+	 */
+	public static String toString(InputStream in, String charset) throws IOException{
+		StringBuilder sb = new StringBuilder();
+		try(BufferedReader br = new BufferedReader(new InputStreamReader(in, charset))){
+			String line;
+			while((line = br.readLine()) != null){
+				sb.append(line);
+			}
+		}
+		return sb.toString();
+	}
+	/**
+	 * String → Byte InputStream
+	 * @param str 読込み対象文字列
+	 * @return InputStream
+	 * @since 4.3
+	 */
+	public static InputStream toByteStream(String str){
+		return new ByteArrayInputStream(str.getBytes());
+	}
 	/**
 	 * Unicode文字列→文字列変換.
 	 * ("\u3042" -> "あ")
