@@ -1,7 +1,5 @@
 package org.yipuran.util.process;
 
-import java.io.IOException;
-
 /**
  * プロセス起動インターフェース.
  * <pre>
@@ -19,20 +17,19 @@ public interface ProcessExecutor{
     * 返される文字列を起動スクリプトとして実行する。
     * 省略可能パラメータで、プロセス側が求める標準入力に対して任意文字列を与えるように
     * 指定することができる。
+    * 例外発生捕捉時はスタックトレースを標準エラー出力するので、getStderr() でスタックトレースを確認する
     * </pre>
     * @param outs 省略可能パラメータ、プロセス側が求める標準入力に入力する文字列、順に入力される。
     * @return プロセス終了コード、Process.exitValue() のコードを返す。
-    * @throws IOException
-    * @throws InterruptedException
     */
-   public int exec(String...outs) throws IOException,InterruptedException;
-   
+   public int exec(String...outs);
+
    /**
     * プロセスの実行結果の標準出力を取得
     * @return プロセス完了後の標準出力
     */
    public String getStdout();
-   
+
    /**
     * 標準エラー出力を取得
     * @return プロセス完了後の標準エラー出力

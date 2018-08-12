@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 /**
@@ -37,87 +40,105 @@ import java.io.PrintWriter;
  * </pre>
  */
 public abstract class AbstractProcessExec implements ProcessExecutor{
-   private String stdout;
-   private String stderr;
+	private String stdout;
+	private String stderr;
 
-   /**
-    * 起動スクリプトを準備する.
-    * <pre>
-    * 具象化クラスで、プロセス起動のスクリプトを返すようにする。
-    * Windows の場合、*.EXEのコマンドとして認識されない、*.bat 等は、
-    * 先頭に "cmd.exe /c "等、cmd.exe を付与した文字列を返す必要がある。
-    * </pre>
-    * @return 起動スクリプト
-    */
-   public abstract String arrange();
+	/**
+	 * 起動スクリプトを準備する.
+	 * <pre>
+	 * 具象化クラスで、プロセス起動のスクリプトを返すようにする。
+	 * Windows の場合、*.EXEのコマンドとして認識されない、*.bat 等は、
+	 * 先頭に "cmd.exe /c "等、cmd.exe を付与した文字列を返す必要がある。
+	 * </pre>
+	 * @return 起動スクリプト
+	 */
+	public abstract String arrange();
 
 
-   /* (非 Javadoc)
-    * @see org.yipuran.util.ProcessExecutor#exec(java.lang.String[])
-    */
-   @Override
-   public int exec(String...outs) throws IOException,InterruptedException{
-      Process p = Runtime.getRuntime().exec(this.arrange());
-      _ProcessStreamReader p_stderr = new _ProcessStreamReader(p.getErrorStream());
-      _ProcessStreamReader p_stdout = new _ProcessStreamReader(p.getInputStream());
-      if (outs.length > 0){
-         // 入力がある場合
-         try(PrintWriter pw = new PrintWriter(p.getOutputStream())){
-	         for(int i=0;i < outs.length;i++){
-	            pw.print(outs[i]);
-	            pw.flush();
-	         }
-         }
-      }
-      //p.waitFor();
-      p_stderr.start();
-      p_stdout.start();
-      p_stderr.join();
-      p_stdout.join();
-      p.waitFor();
-      this.stdout = p_stdout.getString();
-      this.stderr = p_stderr.getString();
-      return p.exitValue();
-   }
-   /* (非 Javadoc)
-    * @see org.yipuran.util.ProcessExecutor#getStdout()
-    */
-   @Override
-   public String getStdout(){
-      return this.stdout;
-   }
-   /* (非 Javadoc)
-    * @see org.yipuran.util.ProcessExecutor#getStderr()
-    */
-   @Override
-   public String getStderr(){
-      return this.stderr;
-   }
-   //---------------
-   class _ProcessStreamReader extends Thread{
-      StringBuffer        sb;
-      InputStreamReader   inredaer;
-      public _ProcessStreamReader(InputStream in){
-         super();
-         this.inredaer = new InputStreamReader(in);
-         this.sb = new StringBuffer();
-      }
-      @Override
-      public void run(){
-         try{
-         int i;
-         int BUFFER_SIZE = 1024;
-         char[] c = new char[BUFFER_SIZE];
-         while((i = this.inredaer.read(c,0,BUFFER_SIZE - 1)) > 0){
-            this.sb.append(c,0,i);
-            if (i < BUFFER_SIZE - 1){ break; }
-         }
-         this.inredaer.close();
-         }catch(IOException e){}
-      }
-      public String getString(){
-         return this.sb.toString();
-      }
-   }
+	/* (非 Javadoc)
+	 * @see org.yipuran.util.ProcessExecutor#exec(java.lang.String[])
+	 */
+	@Override
+	public int exec(String...outs){
+		int rtn = 0;
+   	try{
+			Process p = Runtime.getRuntime().exec(this.arrange());
+			_ProcessStreamReader p_stderr = new _ProcessStreamReader(p.getErrorStream());
+			_ProcessStreamReader p_stdout = new _ProcessStreamReader(p.getInputStream());
+			if (outs.length > 0){
+			// 入力がある場合
+				try(PrintWriter pw = new PrintWriter(p.getOutputStream())){
+					for(int i=0;i < outs.length;i++){
+						pw.print(outs[i]);
+						pw.flush();
+					}
+				}
+			}
+			p_stderr.start();
+			p_stdout.start();
+			p_stderr.join();
+			p_stdout.join();
+			p.waitFor();
+			rtn = p.exitValue();
+			this.stdout = p_stdout.getString();
+			this.stderr = p_stderr.getString();
+		}catch(Exception ex){
+			rtn = 1;
+			this.stdout = "";
+			StringBuilder sb = new StringBuilder();
+			sb.append(ex.getMessage());
+			sb.append("\n");
+			sb.append(Arrays.stream(ex.getStackTrace()).map(t->t.toString()).collect(Collectors.joining("\n\t")));
+			Optional.ofNullable(ex.getCause()).ifPresent(x->{
+				sb.append("\n");
+				sb.append("Caused by: ");
+				sb.append(x.getMessage());
+				sb.append("\n");
+				sb.append(Arrays.stream(x.getStackTrace()).map(t->t.toString()).collect(Collectors.joining("\n\t")));
+			});
+			this.stderr = sb.toString();
+		}
+		return rtn;
+	}
+	/* (非 Javadoc)
+	 * @see org.yipuran.util.ProcessExecutor#getStdout()
+	 */
+	@Override
+	public String getStdout(){
+		return this.stdout;
+	}
+	/* (非 Javadoc)
+	 * @see org.yipuran.util.ProcessExecutor#getStderr()
+	 */
+	@Override
+	public String getStderr(){
+		return this.stderr;
+	}
+	//---------------
+	class _ProcessStreamReader extends Thread{
+		StringBuffer        sb;
+		InputStreamReader   inredaer;
+		public _ProcessStreamReader(InputStream in){
+			super();
+			this.inredaer = new InputStreamReader(in);
+			this.sb = new StringBuffer();
+		}
+		@Override
+		public void run(){
+			try{
+				int i;
+				int BUFFER_SIZE = 1024;
+				char[] c = new char[BUFFER_SIZE];
+				while((i = this.inredaer.read(c,0,BUFFER_SIZE - 1)) > 0){
+					this.sb.append(c,0,i);
+					if (i < BUFFER_SIZE - 1){ break; }
+				}
+				this.inredaer.close();
+			}catch(IOException e){}
+		}
+		public String getString(){
+			return this.sb.toString();
+		}
+	}
 }
 
