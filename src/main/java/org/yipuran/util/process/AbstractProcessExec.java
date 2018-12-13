@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
  *         ＠Override
  *         public String arrange(){
  *                return "cmd.exe /c sample.bat param1 param2";
- *             }
  *         }
  *     }
  *     呼び出し側
@@ -63,6 +62,8 @@ public abstract class AbstractProcessExec implements ProcessExecutor{
 		int rtn = 0;
    	try{
 			Process p = Runtime.getRuntime().exec(this.arrange());
+			//Process p = new ProcessBuilder(this.arrange()).start();
+
 			_ProcessStreamReader p_stderr = new _ProcessStreamReader(p.getErrorStream());
 			_ProcessStreamReader p_stdout = new _ProcessStreamReader(p.getInputStream());
 			if (outs.length > 0){

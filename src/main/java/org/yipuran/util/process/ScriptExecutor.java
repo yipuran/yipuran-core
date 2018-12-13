@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  *      });
  *
  * （Windows 環境での Pythonスクリプト 実行例）
- *       int sts = ScriptExecutor.run(()-&gt;"cmd.exe /C python c:/User/app/myapp.py", (t, e)-&gt;{
+ *       int sts = ScriptExecutor.run(()-&gt;"python c:/User/app/myapp.py", (t, e)-&gt;{
  *            System.out.println("stdout : " + t );
  *            System.out.println("stderr : " + e );
  *       });
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  *   スクリプト起動後、入力を必要とするスクリプトを実行する場合は、全ての入力テキストを与える Supplier&lt;Collection&lt;String&gt;&gt;
  *   か、入力テキストを読み取る InputStream を指定して実行する。
  *   （Windows 例）
- *       int sts = ScriptExecutor.run(()-&gt;"cmd.exe /C python"
+ *       int sts = ScriptExecutor.run(()-&gt;"python"
  *       , ()->Arrays.asList("print(\"Hello Python\")\n", "exit()\n")
  *       , (t, e)-&gt;{
  *             System.out.println("stdout : " + t );
@@ -57,8 +57,11 @@ import java.util.stream.Collectors;
  *   入力を必要とするスクリプトを実行する場合、スクリプトの言語によっては、各処理行の終了、改行コードが必要など、
  *   スクリプトがきちんと終了すること、注意しなければならない。
  *
+ * ver 4.4 より Runtime.getRuntime() ではなく、ProcessBuilder を使用するので、
+ * Windowsで "cmd.exe /C " を先頭に付与しないのが通常だが、
+ * *.EXEのコマンドとして認識されない、*.bat 等は、先頭に "cmd.exe /c "等、cmd.exe を付与した文字列を返す必要がある。
  * </PRE>
- * @since 4.3
+ * @since 4.4
  */
 public final class ScriptExecutor{
 
@@ -76,6 +79,7 @@ public final class ScriptExecutor{
 		String stderr;
 		try{
 			Process p = Runtime.getRuntime().exec(scriptSupplier.get());
+			//Process p = new ProcessBuilder(scriptSupplier.get()).start();
 			_processStreamReader p_stderr = new _processStreamReader(p.getErrorStream());
 			_processStreamReader p_stdout = new _processStreamReader(p.getInputStream());
 			p_stderr.start();
@@ -114,7 +118,8 @@ public final class ScriptExecutor{
 	public static int runStream(Supplier<String> scriptSupplier, BiConsumer<InputStream, InputStream> consumer){
 		int rtn = 0;
 		try{
-			Process p = Runtime.getRuntime().exec(scriptSupplier.get());
+			//Process p = Runtime.getRuntime().exec(scriptSupplier.get());
+			Process p = new ProcessBuilder(scriptSupplier.get()).start();
 			p.waitFor();
 			consumer.accept(p.getInputStream(), p.getErrorStream());
 			return p.exitValue();
@@ -152,7 +157,8 @@ public final class ScriptExecutor{
 		String stdout;
 		String stderr;
 		try{
-			Process p = Runtime.getRuntime().exec(scriptSupplier.get());
+			//Process p = Runtime.getRuntime().exec(scriptSupplier.get());
+			Process p = new ProcessBuilder(scriptSupplier.get()).start();
 			_processStreamReader p_stderr = new _processStreamReader(p.getErrorStream());
 			_processStreamReader p_stdout = new _processStreamReader(p.getInputStream());
 			try(PrintWriter pw = new PrintWriter(p.getOutputStream())){
@@ -198,7 +204,8 @@ public final class ScriptExecutor{
 	public static int runStream(Supplier<String> scriptSupplier, Supplier<Collection<String>> inputSupplier, BiConsumer<InputStream, InputStream> consumer){
 		int rtn = 0;
 		try{
-			Process p = Runtime.getRuntime().exec(scriptSupplier.get());
+			//Process p = Runtime.getRuntime().exec(scriptSupplier.get());
+			Process p = new ProcessBuilder(scriptSupplier.get()).start();
 			try(PrintWriter pw = new PrintWriter(p.getOutputStream())){
 				inputSupplier.get().stream().forEach(s->{
 					pw.print(s);
@@ -241,7 +248,8 @@ public final class ScriptExecutor{
 		String stdout;
 		String stderr;
 		try{
-			Process p = Runtime.getRuntime().exec(scriptSupplier.get());
+			//Process p = Runtime.getRuntime().exec(scriptSupplier.get());
+			Process p = new ProcessBuilder(scriptSupplier.get()).start();
 			_processStreamReader p_stderr = new _processStreamReader(p.getErrorStream());
 			_processStreamReader p_stdout = new _processStreamReader(p.getInputStream());
 			try(PrintWriter pw = new PrintWriter(p.getOutputStream())){
@@ -288,7 +296,8 @@ public final class ScriptExecutor{
 	public static int runStream(Supplier<String> scriptSupplier, InputStream inst, BiConsumer<InputStream, InputStream> consumer){
 		int rtn = 0;
 		try{
-			Process p = Runtime.getRuntime().exec(scriptSupplier.get());
+			//Process p = Runtime.getRuntime().exec(scriptSupplier.get());
+			Process p = new ProcessBuilder(scriptSupplier.get()).start();
 			try(PrintWriter pw = new PrintWriter(p.getOutputStream())){
 				int i;
 				while((i = inst.read()) > 0){
