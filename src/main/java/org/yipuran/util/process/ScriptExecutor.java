@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -27,53 +28,59 @@ import java.util.stream.Collectors;
  * BiConsumer のラムダが実行された後に、Process 実行結果を得る＝すなわちメソッドが返ってくる。
  *
  * （Linux での Pythonスクリプト 実行例）
- *      int sts = ScriptExecutor.run(()-&gt;"python /usr/local/app/myapp.py", (t, e)-&gt;{
- *            System.out.println("stdout : " + t );
- *            System.out.println("stderr : " + e );
+ *      int sts = ScriptExecutor.run(()-&gt;"python /usr/local/app/myapp.py", t->{
+ *         System.out.println("stdout : " + t );
+ *      }, (t, x)-&gt;{
+ *         System.out.println("stderr : " + t );
+ *         x.printStackTrace();
  *      });
  *
  * （Windows 環境での Pythonスクリプト 実行例）
- *       int sts = ScriptExecutor.run(()-&gt;"python c:/User/app/myapp.py", (t, e)-&gt;{
- *            System.out.println("stdout : " + t );
- *            System.out.println("stderr : " + e );
- *       });
+ *      int sts = ScriptExecutor.run(()-&gt;"cmd.exe /C python c:/User/app/myapp.py", t->{
+ *         System.out.println("stdout : " + t );
+ *      }, (t, x)-&gt;{
+ *         System.out.println("stderr : " + t );
+ *         x.printStackTrace();
+ *      });
  *
  *   スクリプト起動後、入力を必要とするスクリプトを実行する場合は、全ての入力テキストを与える Supplier&lt;Collection&lt;String&gt;&gt;
  *   か、入力テキストを読み取る InputStream を指定して実行する。
  *   （Windows 例）
- *       int sts = ScriptExecutor.run(()-&gt;"python"
- *       , ()->Arrays.asList("print(\"Hello Python\")\n", "exit()\n")
- *       , (t, e)-&gt;{
- *             System.out.println("stdout : " + t );
- *             System.out.println("stderr : " + e );
+ *       int sts = ScriptExecutor.run(()-&gt;"cmd.exe /C python"
+ *       , ()->Arrays.asList("print(\"Hello Python\")\n", "exit()\n"), t->{
+ *            System.out.println("stdout : " + t );
+ *       }, (t, x)-&gt;{
+ *            System.out.println("stderr : " + t );
+ *            x.printStackTrace();
  *       });
  *   （Linux 例）
  *       int sts = ScriptExecutor.run(()-&gt;"python"
- *       , ()->Arrays.asList("print(\"Hello Python\")\n", "exit()\n")
- *       , (t, e)-&gt;{
- *             System.out.println("stdout : " + t );
- *             System.out.println("stderr : " + e );
+ *       , ()->Arrays.asList("print(\"Hello Python\")\n", "exit()\n"), t->{
+ *       	 System.out.println("stdout : " + t );
+ *       }, (t, x)-&gt;{
+ *           System.out.println("stderr : " + t );
+ *           x.printStackTrace();
  *       });
  *   入力を必要とするスクリプトを実行する場合、スクリプトの言語によっては、各処理行の終了、改行コードが必要など、
  *   スクリプトがきちんと終了すること、注意しなければならない。
  *
- * ver 4.4 より Runtime.getRuntime() ではなく、ProcessBuilder を使用するので、
+ *、
  * Windowsで "cmd.exe /C " を先頭に付与しないのが通常だが、
  * *.EXEのコマンドとして認識されない、*.bat 等は、先頭に "cmd.exe /c "等、cmd.exe を付与した文字列を返す必要がある。
  * </PRE>
- * @since 4.4
  */
 public final class ScriptExecutor{
 
 	private ScriptExecutor(){}
 
 	/**
-	 * ラムダ・スクリプト実行（String → BiConsumer）
-	 * @param scriptSupplier 実行するスクリプト
-	 * @param consumer BiConsumer&lt;String, String&gt; = &lt;stdout, stderr&gt;
+	 * ラムダ・スクリプト実行（Supplier string）
+	 * @param scriptSupplier 実行するスクリプトを返すSupplier
+	 * @param consumer 正常終了時の Consumer → 標準出力
+	 * @param error 異常終了時の BiConsumer → 標準エラー出力とThrowable
 	 * @return java.lang.Process の exitValue() 結果、例外発生時は 1 を返す。
 	 */
-	public static int run(Supplier<String> scriptSupplier, BiConsumer<String, String> consumer){
+	public static int run(Supplier<String> scriptSupplier, Consumer<String> consumer, BiConsumer<String, Throwable> error){
 		int rtn = 0;
 		String stdout;
 		String stderr;
@@ -90,6 +97,11 @@ public final class ScriptExecutor{
 			rtn = p.exitValue();
 			stdout = p_stdout.getString();
 			stderr = p_stderr.getString();
+			if (stderr==null || stderr.isEmpty()){
+				consumer.accept(stdout);
+			}else{
+				error.accept(stderr, new Exception(stderr));
+			}
 		}catch(Exception ex){
 			rtn = 1;
 			stdout = "";
@@ -105,8 +117,8 @@ public final class ScriptExecutor{
 			sb.append(Arrays.stream(x.getStackTrace()).map(t->t.toString()).collect(Collectors.joining("\n\t")));
 			});
 			stderr = sb.toString();
+			error.accept(stderr + ex.getMessage(), ex);
 		}
-		consumer.accept(stdout, stderr);
 		return rtn;
 	}
 	/**
@@ -149,10 +161,11 @@ public final class ScriptExecutor{
 	 * 起動後入力有り、ラムダ・スクリプト実行（String → BiConsumer） at Collection
 	 * @param scriptSupplier 実行するスクリプト
 	 * @param inputSupplier 起動後、スクリプトが求める入力テキストを Collection&lt;String&gt; で提供するSupplier
-	 * @param consumer BiConsumer&lt;String, String&gt; = &lt;stdout, stderr&gt;
+	 * @param consumer 正常終了時の Consumer → 標準出力
+	 * @param error 異常終了時の BiConsumer → 標準エラー出力とThrowable
 	 * @return java.lang.Process の exitValue() 結果、例外発生時は 1 を返す。
 	 */
-	public static int run(Supplier<String> scriptSupplier, Supplier<Collection<String>> inputSupplier, BiConsumer<String, String> consumer){
+	public static int run(Supplier<String> scriptSupplier, Supplier<Collection<String>> inputSupplier, Consumer<String> consumer, BiConsumer<String, Throwable> error){
 		int rtn = 0;
 		String stdout;
 		String stderr;
@@ -175,6 +188,11 @@ public final class ScriptExecutor{
 			rtn = p.exitValue();
 			stdout = p_stdout.getString();
 			stderr = p_stderr.getString();
+			if (stderr==null || stderr.isEmpty()){
+				consumer.accept(stdout);
+			}else{
+				error.accept(stderr, new Exception(stderr));
+			}
 		}catch(Exception ex){
 			rtn = 1;
 			stdout = "";
@@ -190,8 +208,8 @@ public final class ScriptExecutor{
 			sb.append(Arrays.stream(x.getStackTrace()).map(t->t.toString()).collect(Collectors.joining("\n\t")));
 			});
 			stderr = sb.toString();
+			error.accept(stderr + ex.getMessage(), ex);
 		}
-		consumer.accept(stdout, stderr);
 		return rtn;
 	}
 	/**
@@ -240,10 +258,11 @@ public final class ScriptExecutor{
 	 * 起動後入力有り、ラムダ・スクリプト実行（String → BiConsumer） at InputStream
 	 * @param scriptSupplier 実行するスクリプト
 	 * @param inst 起動後、スクリプトが求める入力テキストを与える InputStream
-	 * @param consumer BiConsumer&lt;String, String&gt; = &lt;stdout, stderr&gt;
+	 * @param consumer 正常終了時の Consumer → 標準出力
+	 * @param error 異常終了時の BiConsumer → 標準エラー出力とThrowable
 	 * @return java.lang.Process の exitValue() 結果、例外発生時は 1 を返す。
 	 */
-	public static int run(Supplier<String> scriptSupplier, InputStream inst, BiConsumer<String, String> consumer){
+	public static int run(Supplier<String> scriptSupplier, InputStream inst, Consumer<String> consumer, BiConsumer<String, Throwable> error){
 		int rtn = 0;
 		String stdout;
 		String stderr;
@@ -267,6 +286,11 @@ public final class ScriptExecutor{
 			rtn = p.exitValue();
 			stdout = p_stdout.getString();
 			stderr = p_stderr.getString();
+			if (stderr==null || stderr.isEmpty()){
+				consumer.accept(stdout);
+			}else{
+				error.accept(stderr, new Exception(stderr));
+			}
 		}catch(Exception ex){
 			rtn = 1;
 			stdout = "";
@@ -282,8 +306,8 @@ public final class ScriptExecutor{
 			sb.append(Arrays.stream(x.getStackTrace()).map(t->t.toString()).collect(Collectors.joining("\n\t")));
 			});
 			stderr = sb.toString();
+			error.accept(stderr + ex.getMessage(), ex);
 		}
-		consumer.accept(stdout, stderr);
 		return rtn;
 	}
 	/**

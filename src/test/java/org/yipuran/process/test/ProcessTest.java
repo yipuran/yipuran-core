@@ -12,18 +12,21 @@ public class ProcessTest{
 	public static void main(String[] args){
 
 		int sts = ScriptExecutor.run(()->"python"
-		       , ()->Arrays.asList("print(\"Hello Python\")\n", "exit()\n")
-		       , (t, e)->{
-		             System.out.println("stdout : " + t );
-		             System.out.println("stderr : " + e );
+		       , ()->Arrays.asList("print(\"Hello Python\")\n", "exit()\n"), t->{
+		      	 System.out.println("stdout : " + t );
+		       }, (t, e)->{
+		          System.out.println("stderr : " + t );
+		          e.printStackTrace();
 		       });
 		System.out.println("sts = " + sts);
 
 		System.out.println("-----------------------");
-		sts = ScriptExecutor.run(()->"cmd.exe /C python c:/work/hello.py", (t, e)->{
-			            System.out.println("stdout : " + t );
-			            System.out.println("stderr : " + e );
-			      });
+		sts = ScriptExecutor.run(()->"cmd.exe /C python c:/work/hello.py", t->{
+			System.out.println("stdout : " + t );
+		}, (t, e)->{
+			System.out.println("stderr : " + t );
+			e.printStackTrace();
+		});
 		System.out.println("sts = " + sts);
 
 		System.out.println("-----------------------");
