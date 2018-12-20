@@ -130,8 +130,8 @@ public final class ScriptExecutor{
 	public static int runStream(Supplier<String> scriptSupplier, BiConsumer<InputStream, InputStream> consumer){
 		int rtn = 0;
 		try{
-			//Process p = Runtime.getRuntime().exec(scriptSupplier.get());
-			Process p = new ProcessBuilder(scriptSupplier.get()).start();
+			Process p = Runtime.getRuntime().exec(scriptSupplier.get());
+			//Process p = new ProcessBuilder(scriptSupplier.get()).start();
 			p.waitFor();
 			consumer.accept(p.getInputStream(), p.getErrorStream());
 			return p.exitValue();
@@ -170,8 +170,8 @@ public final class ScriptExecutor{
 		String stdout;
 		String stderr;
 		try{
-			//Process p = Runtime.getRuntime().exec(scriptSupplier.get());
-			Process p = new ProcessBuilder(scriptSupplier.get()).start();
+			Process p = Runtime.getRuntime().exec(scriptSupplier.get());
+			//Process p = new ProcessBuilder(scriptSupplier.get()).start();
 			_processStreamReader p_stderr = new _processStreamReader(p.getErrorStream());
 			_processStreamReader p_stdout = new _processStreamReader(p.getInputStream());
 			try(PrintWriter pw = new PrintWriter(p.getOutputStream())){
@@ -222,8 +222,8 @@ public final class ScriptExecutor{
 	public static int runStream(Supplier<String> scriptSupplier, Supplier<Collection<String>> inputSupplier, BiConsumer<InputStream, InputStream> consumer){
 		int rtn = 0;
 		try{
-			//Process p = Runtime.getRuntime().exec(scriptSupplier.get());
-			Process p = new ProcessBuilder(scriptSupplier.get()).start();
+			Process p = Runtime.getRuntime().exec(scriptSupplier.get());
+			//Process p = new ProcessBuilder(scriptSupplier.get()).start();
 			try(PrintWriter pw = new PrintWriter(p.getOutputStream())){
 				inputSupplier.get().stream().forEach(s->{
 					pw.print(s);
@@ -267,8 +267,8 @@ public final class ScriptExecutor{
 		String stdout;
 		String stderr;
 		try{
-			//Process p = Runtime.getRuntime().exec(scriptSupplier.get());
-			Process p = new ProcessBuilder(scriptSupplier.get()).start();
+			Process p = Runtime.getRuntime().exec(scriptSupplier.get());
+			//Process p = new ProcessBuilder(scriptSupplier.get()).start();
 			_processStreamReader p_stderr = new _processStreamReader(p.getErrorStream());
 			_processStreamReader p_stdout = new _processStreamReader(p.getInputStream());
 			try(PrintWriter pw = new PrintWriter(p.getOutputStream())){
@@ -320,8 +320,8 @@ public final class ScriptExecutor{
 	public static int runStream(Supplier<String> scriptSupplier, InputStream inst, BiConsumer<InputStream, InputStream> consumer){
 		int rtn = 0;
 		try{
-			//Process p = Runtime.getRuntime().exec(scriptSupplier.get());
-			Process p = new ProcessBuilder(scriptSupplier.get()).start();
+			Process p = Runtime.getRuntime().exec(scriptSupplier.get());
+			//Process p = new ProcessBuilder(scriptSupplier.get()).start();
 			try(PrintWriter pw = new PrintWriter(p.getOutputStream())){
 				int i;
 				while((i = inst.read()) > 0){
