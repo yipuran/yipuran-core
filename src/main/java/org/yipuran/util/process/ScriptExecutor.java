@@ -1,11 +1,9 @@
 package org.yipuran.util.process;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
@@ -64,7 +62,17 @@ import java.util.stream.Collectors;
  *   入力を必要とするスクリプトを実行する場合、スクリプトの言語によっては、各処理行の終了、改行コードが必要など、
  *   スクリプトがきちんと終了すること、注意しなければならない。
  *
- *、
+ *   Python 実行、Python スクリプトが標準入力を求めている場合、
+ *   　起動後入力有り、ラムダ・スクリプト実行（標準出力結果→String）
+ *   　public static int run(Supplier&lt;String&gt; , Supplier&lt;Collection&lt;String&gt;&gt; , Consumer&lt;String&gt; , BiConsumer&lt;String, Throwable&gt; )
+ *   　
+ *   　起動後入力有り、ラムダ・スクリプト実行（標準出力結果→InputStream）
+ *   　public static int runStream(Supplier&lt;String&gt; , Supplier&lt;Collection&lt;String&gt;&gt; , Consumer&lt;InputStream&gt; , BiConsumer&lt;String, Throwable&gt; )
+ *
+ *   を使用するが、起動後入力する文字列が２バイト文字を含む場合、Unicode 変換した文字列を渡して
+ *   Pythonスクリプト側で、encode().decode('unicode-escape') で受け取る必要がある。
+ *   Unicode 変換は、org.yipuran.util.SJutil の toUnicode(String) メソッドを使用すると便利
+ *
  * Windowsで "cmd.exe /C " を先頭に付与しないのが通常だが、
  * *.EXEのコマンドとして認識されない、*.bat 等は、先頭に "cmd.exe /c "等、cmd.exe を付与した文字列を返す必要がある。
  * </PRE>
@@ -74,11 +82,11 @@ public final class ScriptExecutor{
 	private ScriptExecutor(){}
 
 	/**
-	 * ラムダ・スクリプト実行（Supplier string）
+	 * ラムダ・スクリプト実行（標準出力結果→String）
 	 * @param scriptSupplier 実行するスクリプトを返すSupplier
 	 * @param consumer 正常終了時の Consumer → 標準出力
 	 * @param error 異常終了時の BiConsumer → 標準エラー出力とThrowable
-	 * @return java.lang.Process の exitValue() 結果、例外発生時は 1 を返す。
+	 * @return java.lang.Process の exitValue() 結果、0 = 起動が正常。
 	 */
 	public static int run(Supplier<String> scriptSupplier, Consumer<String> consumer, BiConsumer<String, Throwable> error){
 		int rtn = 0;
@@ -122,19 +130,29 @@ public final class ScriptExecutor{
 		return rtn;
 	}
 	/**
-	 * ラムダ・スクリプト実行（InputStream → BiConsumer）
+	 * ラムダ・スクリプト実行（標準出力結果→InputStream）
 	 * @param scriptSupplier 実行するスクリプト
-	 * @param consumer BiConsumer&lt;InputStream, InputStream&gt; = &lt;stdout の InputStream, stderr InputStream&gt;
-	 * @return java.lang.Process の exitValue() 結果、例外発生時は 1 を返す。
+	 * @param consumer 正常終了時の Consumer → InputStream
+	 * @param error 異常終了時の BiConsumer → 標準エラー出力 StringとThrowable
+	 * @return java.lang.Process の exitValue() 結果、0 = 起動が正常。
 	 */
-	public static int runStream(Supplier<String> scriptSupplier, BiConsumer<InputStream, InputStream> consumer){
+	public static int runStream(Supplier<String> scriptSupplier, Consumer<InputStream> consumer, BiConsumer<String, Throwable> error){
 		int rtn = 0;
+		String stderr;
 		try{
 			Process p = Runtime.getRuntime().exec(scriptSupplier.get());
 			//Process p = new ProcessBuilder(scriptSupplier.get()).start();
+			_processStreamReader p_stderr = new _processStreamReader(p.getErrorStream());
+			consumer.accept(p.getInputStream());
+			p_stderr.start();
+			p_stderr.join();
 			p.waitFor();
-			consumer.accept(p.getInputStream(), p.getErrorStream());
-			return p.exitValue();
+
+			rtn = p.exitValue();
+			stderr = p_stderr.getString();
+			if (stderr !=null && !stderr.isEmpty()){
+				error.accept(stderr, new Exception(stderr));
+			}
 		}catch(Exception ex){
 			rtn = 1;
 			StringBuilder sb = new StringBuilder();
@@ -148,22 +166,19 @@ public final class ScriptExecutor{
 				sb.append("\n");
 			sb.append(Arrays.stream(x.getStackTrace()).map(t->t.toString()).collect(Collectors.joining("\n\t")));
 			});
-			try{
-				consumer.accept(new ByteArrayInputStream("".getBytes()), new ByteArrayInputStream(sb.toString().getBytes("UTF-8")));
-			}catch(UnsupportedEncodingException e){
-				e.printStackTrace();
-			}
+			stderr = sb.toString();
+			error.accept(stderr + ex.getMessage(), ex);
 		}
 		return rtn;
 	}
 
 	/**
-	 * 起動後入力有り、ラムダ・スクリプト実行（String → BiConsumer） at Collection
+	 * 起動後入力有り、ラムダ・スクリプト実行（標準出力結果→String）.
 	 * @param scriptSupplier 実行するスクリプト
 	 * @param inputSupplier 起動後、スクリプトが求める入力テキストを Collection&lt;String&gt; で提供するSupplier
 	 * @param consumer 正常終了時の Consumer → 標準出力
 	 * @param error 異常終了時の BiConsumer → 標準エラー出力とThrowable
-	 * @return java.lang.Process の exitValue() 結果、例外発生時は 1 を返す。
+	 * @return java.lang.Process の exitValue() 結果、0 = 起動が正常
 	 */
 	public static int run(Supplier<String> scriptSupplier, Supplier<Collection<String>> inputSupplier, Consumer<String> consumer, BiConsumer<String, Throwable> error){
 		int rtn = 0;
@@ -213,87 +228,37 @@ public final class ScriptExecutor{
 		return rtn;
 	}
 	/**
-	 * 起動後入力有り、ラムダ・スクリプト実行（InputStream → BiConsumer）at Collection
+	 * 起動後入力有り、ラムダ・スクリプト実行（標準出力結果→InputStream）.
 	 * @param scriptSupplier 実行するスクリプト
-	 * @param inputSupplier 起動後、スクリプトが求める入力テキストを Collection&lt;String&gt; で提供するSupplier
-	 * @param consumer BiConsumer&lt;InputStream, InputStream&gt; = &lt;stdout の InputStream, stderr InputStream&gt;
+	 * @param consumer 正常終了時の Consumer → InputStream
+	 * @param error 異常終了時の BiConsumer → 標準エラー出力 StringとThrowable
 	 * @return java.lang.Process の exitValue() 結果、例外発生時は 1 を返す。
 	 */
-	public static int runStream(Supplier<String> scriptSupplier, Supplier<Collection<String>> inputSupplier, BiConsumer<InputStream, InputStream> consumer){
+	public static int runStream(Supplier<String> scriptSupplier, Supplier<Collection<String>> inputSupplier , Consumer<InputStream> consumer, BiConsumer<String, Throwable> error){
 		int rtn = 0;
+		String stderr;
 		try{
 			Process p = Runtime.getRuntime().exec(scriptSupplier.get());
 			//Process p = new ProcessBuilder(scriptSupplier.get()).start();
+			_processStreamReader p_stderr = new _processStreamReader(p.getErrorStream());
 			try(PrintWriter pw = new PrintWriter(p.getOutputStream())){
 				inputSupplier.get().stream().forEach(s->{
 					pw.print(s);
 					pw.flush();
 				});
 			}
-			p.waitFor();
-			consumer.accept(p.getInputStream(), p.getErrorStream());
-			return p.exitValue();
-		}catch(Exception ex){
-			rtn = 1;
-			StringBuilder sb = new StringBuilder();
-			sb.append(ex.getMessage());
-			sb.append("\n");
-			sb.append(Arrays.stream(ex.getStackTrace()).map(t->t.toString()).collect(Collectors.joining("\n\t")));
-			Optional.ofNullable(ex.getCause()).ifPresent(x->{
-				sb.append("\n");
-				sb.append("Caused by: ");
-				sb.append(x.getMessage());
-				sb.append("\n");
-			sb.append(Arrays.stream(x.getStackTrace()).map(t->t.toString()).collect(Collectors.joining("\n\t")));
-			});
-			try{
-				consumer.accept(new ByteArrayInputStream("".getBytes()), new ByteArrayInputStream(sb.toString().getBytes("UTF-8")));
-			}catch(UnsupportedEncodingException e){
-				e.printStackTrace();
-			}
-		}
-		return rtn;
-	}
-	/**
-	 * 起動後入力有り、ラムダ・スクリプト実行（String → BiConsumer） at InputStream
-	 * @param scriptSupplier 実行するスクリプト
-	 * @param inst 起動後、スクリプトが求める入力テキストを与える InputStream
-	 * @param consumer 正常終了時の Consumer → 標準出力
-	 * @param error 異常終了時の BiConsumer → 標準エラー出力とThrowable
-	 * @return java.lang.Process の exitValue() 結果、例外発生時は 1 を返す。
-	 */
-	public static int run(Supplier<String> scriptSupplier, InputStream inst, Consumer<String> consumer, BiConsumer<String, Throwable> error){
-		int rtn = 0;
-		String stdout;
-		String stderr;
-		try{
-			Process p = Runtime.getRuntime().exec(scriptSupplier.get());
-			//Process p = new ProcessBuilder(scriptSupplier.get()).start();
-			_processStreamReader p_stderr = new _processStreamReader(p.getErrorStream());
-			_processStreamReader p_stdout = new _processStreamReader(p.getInputStream());
-			try(PrintWriter pw = new PrintWriter(p.getOutputStream())){
-				int i;
-				while((i = inst.read()) > 0){
-					pw.print((char)i);
-					pw.flush();
-				}
-			}
+			consumer.accept(p.getInputStream());
 			p_stderr.start();
-			p_stdout.start();
 			p_stderr.join();
-			p_stdout.join();
 			p.waitFor();
+
 			rtn = p.exitValue();
-			stdout = p_stdout.getString();
 			stderr = p_stderr.getString();
-			if (stderr==null || stderr.isEmpty()){
-				consumer.accept(stdout);
-			}else{
+			if (stderr !=null && !stderr.isEmpty()){
 				error.accept(stderr, new Exception(stderr));
 			}
 		}catch(Exception ex){
 			rtn = 1;
-			stdout = "";
 			StringBuilder sb = new StringBuilder();
 			sb.append(ex.getMessage());
 			sb.append("\n");
@@ -310,50 +275,6 @@ public final class ScriptExecutor{
 		}
 		return rtn;
 	}
-	/**
-	 * 起動後入力有り、ラムダ・スクリプト実行（InputStream → BiConsumer）at InputStream
-	 * @param scriptSupplier scriptSupplier 実行するスクリプト
-	 * @param inst 起動後、スクリプトが求める入力テキストを与える InputStream
-	 * @param consumer BiConsumer&lt;InputStream, InputStream&gt; = &lt;stdout の InputStream, stderr InputStream&gt;
-	 * @return java.lang.Process の exitValue() 結果、例外発生時は 1 を返す。
-	 */
-	public static int runStream(Supplier<String> scriptSupplier, InputStream inst, BiConsumer<InputStream, InputStream> consumer){
-		int rtn = 0;
-		try{
-			Process p = Runtime.getRuntime().exec(scriptSupplier.get());
-			//Process p = new ProcessBuilder(scriptSupplier.get()).start();
-			try(PrintWriter pw = new PrintWriter(p.getOutputStream())){
-				int i;
-				while((i = inst.read()) > 0){
-					pw.print((char)i);
-					pw.flush();
-				}
-			}
-			p.waitFor();
-			consumer.accept(p.getInputStream(), p.getErrorStream());
-			return p.exitValue();
-		}catch(Exception ex){
-			rtn = 1;
-			StringBuilder sb = new StringBuilder();
-			sb.append(ex.getMessage());
-			sb.append("\n");
-			sb.append(Arrays.stream(ex.getStackTrace()).map(t->t.toString()).collect(Collectors.joining("\n\t")));
-			Optional.ofNullable(ex.getCause()).ifPresent(x->{
-				sb.append("\n");
-				sb.append("Caused by: ");
-				sb.append(x.getMessage());
-				sb.append("\n");
-			sb.append(Arrays.stream(x.getStackTrace()).map(t->t.toString()).collect(Collectors.joining("\n\t")));
-			});
-			try{
-				consumer.accept(new ByteArrayInputStream("".getBytes()), new ByteArrayInputStream(sb.toString().getBytes("UTF-8")));
-			}catch(UnsupportedEncodingException e){
-				e.printStackTrace();
-			}
-		}
-		return rtn;
-	}
-
 	//---------------
 	static class _processStreamReader extends Thread{
 		StringBuffer        sb;
