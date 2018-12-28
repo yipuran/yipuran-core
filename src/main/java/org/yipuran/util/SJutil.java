@@ -349,4 +349,36 @@ public final class SJutil{
 		}
 		return sb.toString();
 	}
+	/**
+	 * Unicode文字列に変換する("あ" → "\u3042")
+	 * @param string 変換対象文字列 nullを指定すると、空文字が返る。
+	 * @return 変換結果 Unicode文字列
+	 * @since Ver 4.6
+	 */
+	public static String toUnicode(String string){
+		if (string==null || string.isEmpty()) return "";
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < string.length(); i++) {
+			sb.append(String.format("\\u%04X", Character.codePointAt(string, i)));
+		}
+		String unicode = sb.toString();
+		return unicode;
+	}
+
+	/**
+	 * Unicode文字列から元の文字列に変換する ("\u3042" → "あ")
+	 * @param unicode Unicode文字列
+	 * @return 変換結果 UTF-8 文字列
+	 * @since Ver 4.6
+	 */
+	public static String fromUnicode(String unicode){
+		if (unicode==null || unicode.isEmpty()) return "";
+		String[] codeStrs = unicode.split("\\\\u");
+		int[] codePoints = new int[codeStrs.length - 1]; // 最初が空文字なのでそれを抜かす
+		for (int i = 0; i < codePoints.length; i++) {
+			codePoints[i] = Integer.parseInt(codeStrs[i + 1], 16);
+		}
+		String encodedText = new String(codePoints, 0, codePoints.length);
+		return encodedText;
+	}
 }
