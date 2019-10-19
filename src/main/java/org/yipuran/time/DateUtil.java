@@ -2,7 +2,10 @@ package org.yipuran.time;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -94,5 +97,14 @@ public final class DateUtil{
 		map.keySet().stream().sorted().forEach(k->{
 			bookConsumer.accept(k, map.get(k).stream().distinct().collect(Collectors.toList()));
 		});
+	}
+	/**
+	 * エポックミリ秒→LocalDateTime
+	 * @param epocmili エポックミリ秒
+	 * @return LocalDateTime
+	 * @since 4.8
+	 */
+	public static LocalDateTime epocToLocalDatetime(long epocmili) {
+		return Instant.ofEpochMilli(epocmili).atZone(ZoneId.systemDefault()).toLocalDateTime();
 	}
 }
