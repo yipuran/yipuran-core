@@ -12,7 +12,7 @@ import java.util.function.UnaryOperator;
  * to メソッドで生成する。
  *
  * 例)
- * stream.filter(ThrowableSupplier.to(e->{
+ * stream.filter(ThrowableUnaryOperator.of(e->{
  *     // 通常の判定
  *     return true;
  * }, (e, x)->false);
