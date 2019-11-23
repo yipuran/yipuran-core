@@ -42,7 +42,7 @@ public interface Fieldgetter<T, R> extends Serializable{
 	static <T, R> Function<T, R> of(Fieldgetter<T, R> f){
 		return t->{
 			try{
-				Field field = t.getClass().getDeclaredField(f.get(t));
+				Field field = t.getClass().getField(f.get(t));
 				field.setAccessible(true);
 				return (R)field.get(t);
 			}catch(Throwable ex){
