@@ -37,7 +37,13 @@ public interface Fieldsetter<T, U> extends Serializable{
 	public static <T, U> BiConsumer<T, U> of(Fieldsetter<T, U> function){
 		return (t, u)->{
 			try{
-				Field f = t.getClass().getField(function.get(t, u));
+				String fname = function.get(t, u);
+				Field f;
+				try{
+					f = t.getClass().getField(fname);
+				}catch(NoSuchFieldException e){
+					f = t.getClass().getDeclaredField(fname);
+				}
 				f.setAccessible(true);
 				f.set(t, u);
 			}catch(Throwable ex){
