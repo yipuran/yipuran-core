@@ -37,7 +37,6 @@ public final class TreeSetFactory{
     * @param getterName ソートキーを取得するメソッド名、Comparable を実装したものを返すメソッドであること
     * @return TreeSet
     */
-   @SuppressWarnings("unchecked")
    public static <T> TreeSet<T> createASC(final Class<T> cls,final String getterName){
       Injector injector = Guice.createInjector(new AbstractModule(){
             @Override
@@ -59,7 +58,6 @@ public final class TreeSetFactory{
     * @param getterName ソートキーを取得するメソッド名、Comparable を実装したものを返すメソッドであること
     * @return TreeSet
     */
-   @SuppressWarnings("unchecked")
    public static <T> TreeSet<T> createUniqueASC(final Class<?> cls,final String getterName){
       Injector injector = Guice.createInjector(new AbstractModule(){
             @Override
@@ -81,7 +79,6 @@ public final class TreeSetFactory{
     * @param getterName ソートキーを取得するメソッド名、Comparable を実装したものを返すメソッドであること
     * @return TreeSet
     */
-   @SuppressWarnings("unchecked")
    public static <T> TreeSet<T> createDESC(final Class<T> cls,final String getterName){
       Injector injector = Guice.createInjector(new AbstractModule(){
             @Override
@@ -103,7 +100,6 @@ public final class TreeSetFactory{
     * @param getterName ソートキーを取得するメソッド名、Comparable を実装したものを返すメソッドであること
     * @return TreeSet
     */
-   @SuppressWarnings("unchecked")
    public static <T> TreeSet<T> createUniqueDESC(final Class<T> cls,final String getterName){
       Injector injector = Guice.createInjector(new AbstractModule(){
             @Override

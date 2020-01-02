@@ -19,6 +19,7 @@ import java.util.function.UnaryOperator;
  *
  * </PRE>
  */
+@FunctionalInterface
 public interface ThrowableUnaryOperator<T> extends Serializable{
 	T apply(T t) throws Exception;
 

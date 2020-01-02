@@ -3,12 +3,14 @@ package org.yipuran.csv;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.yipuran.csv4j.CSVWriter;
+import org.yipuran.util.BOMfunction;
 /**
  * ＣＳＶ生成インターフェース.
  * <PRE>
@@ -19,6 +21,13 @@ import org.yipuran.csv4j.CSVWriter;
  *
  * try(OutputStream out = new FileOutputStream("c:/work/sample.csv")){
  *    c.create(out, "MS932");
+ * }catch(Exception e){
+ *    e.printStackTrace();
+ * }
+ *
+ * BOM付きUTF-8 の場合、
+ * try(OutputStream out = new FileOutputStream("c:/work/sample.csv")){
+ *    c.createBomUTF8(out);
  * }catch(Exception e){
  *    e.printStackTrace();
  * }
@@ -65,6 +74,24 @@ public interface CsvCreator extends Serializable{
 				}
 				writer.write(csvline(sary));
 				writer.write(lineSeparator);
+			}
+		}catch(Exception e){
+			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
+	/**
+	 * BOM付きUTF-8 ＣＳＶ出力実行
+	 * @param out OutputStream
+	 */
+	default public void createBomUTF8(OutputStream out){
+		try(OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8)){
+			BOMfunction.push(out);
+			CSVWriter csvWriter = new CSVWriter(writer);
+			for(String[] sary:getSupplier().get()){
+				for(int i=0;i < sary.length;i++){
+					sary[i] = sary[i]==null ? "" : sary[i];
+				}
+				csvWriter.writeLine(sary);
 			}
 		}catch(Exception e){
 			throw new RuntimeException(e.getMessage(), e);
