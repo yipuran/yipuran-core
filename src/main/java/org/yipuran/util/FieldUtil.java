@@ -22,7 +22,7 @@ public final class FieldUtil{
 	 * @return 引数Supplierに、コピー後のインスタンス
 	 */
 	public static <R, T> R copy(T t, Supplier<R> s){
-		GenericBuilder<R> builder = Arrays.stream(t.getClass().getFields())
+		GenericBuilder<R> builder = Arrays.stream(t.getClass().getDeclaredFields())
 		.collect(ThrowableSupplier.to(()->GenericBuilder.of(s)), ThrowableBiConsumer.of((r, f)->{
 			f.setAccessible(true);
 			r.with(Fieldsetter.of((p, u)->f.getName()), f.get(t));
@@ -37,7 +37,7 @@ public final class FieldUtil{
 	 * @return 引数Supplierに、コピー後のインスタンス
 	 */
 	public static <R, T> R copylenient(T t, Supplier<R> s){
-		GenericBuilder<R> builder = Arrays.stream(t.getClass().getFields())
+		GenericBuilder<R> builder = Arrays.stream(t.getClass().getDeclaredFields())
 		.collect(ThrowableSupplier.to(()->GenericBuilder.of(s)), ThrowableBiConsumer.of((g, f)->{
 			f.setAccessible(true);
 			g.with((v, u)->{
