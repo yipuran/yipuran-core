@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * 順列組合せ nCr 算出.
+ * 順列組合せ nCr 算出（要素の重複なし組み合わせ）Combination.
  * <PRE>
  * インスタンス生成後、結果List&lt;List&lt;T&gt;&gt;を取得、または Iterator&lt;List&lt;T&gt;&gt;を iterator()で取得する。
  * 要素の重複はしない。
@@ -18,6 +18,7 @@ import java.util.List;
  * Stream&lt;List&lt;String&gt;&gt; stream = StreamSupport.stream(spliterator, false);
  * stream.map(e->e.stream().collect(Collectors.joining(""))).forEach(System.out::println);
  * </PRE>
+ * @since 4.11
  */
 public class Combinations<T> {
 	private List<List<T>> combinations;
@@ -28,18 +29,16 @@ public class Combinations<T> {
 	private boolean overHalf;
 
 	/**
-	 * インスタンス生成.
+	 * List→インスタンス生成.
 	 * @param list List&lt;T&gt;生成前のリスト
-	 * @param r 組み合わせ数 nCr の r
 	 */
 	public static <T> Combinations<T> of(List<T> list){
 		return new Combinations<T>(list);
 	}
 
 	/**
-	 * インスタンス生成.
+	 * 配列→インスタンス生成.
 	 * @param array T[] 生成前の配列
-	 * @param r 組み合わせ数 nCr の r
 	 */
 	public static <T> Combinations<T> of(T[] array){
 		return new Combinations<T>(Arrays.asList(array));
@@ -77,7 +76,7 @@ public class Combinations<T> {
 		return this.combinations;
 	}
 	/**
-	 * イテレータ取得
+	 * 組み合わせ結果List のイテレータ取得
 	 * @param len nCr の r
 	 * @return List&lt;T&gt;を返すイテレータ
 	 */
