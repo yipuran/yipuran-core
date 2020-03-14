@@ -21,7 +21,7 @@ or [Wiki Page](../../wiki)
     <dependency>
         <groupId>org.yipuran.core</groupId>
         <artifactId>yipuran-core</artifactId>
-        <version>4.9</version>
+        <version>4.10</version>
     </dependency>
 </dependencies>
 
