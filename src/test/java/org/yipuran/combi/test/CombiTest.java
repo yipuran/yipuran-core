@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.yipuran.util.Combinations;
+import org.yipuran.util.pch.Combinations;
 
 /**
  * CombiTest.java
