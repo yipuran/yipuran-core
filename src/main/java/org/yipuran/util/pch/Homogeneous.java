@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -23,6 +25,9 @@ import java.util.stream.Collectors;
  */
 public class Homogeneous<T>{
 	private List<T> list;
+	private Homogeneous(List<T> list){
+		this.list = list;
+	}
 	/**
 	 * List→インスタンス生成.
 	 * @param list List&lt;T&gt;生成前のリスト
@@ -66,10 +71,60 @@ public class Homogeneous<T>{
 		}
 		return combinations;
 	}
-
-	private Homogeneous(List<T> list){
-		this.list = list;
+	/**
+	 * Predicate指定結果Consumer実行
+	 * @param len 組み合わせ数 nHr の r
+	 * @param predivate 組み合わせ結果よりConsumer実行を判定 true=実行する
+	 * @param consumer
+	 */
+	public void matchExecute(int len, Predicate<List<T>> predivate, Consumer<List<T>> consumer){
+		int n = list.size();
+		int[] d = new int[n > len ? n+1 : len+1];
+		for(int i=1; i <= n; i++) d[i] = 1;
+		while(d[0] <= 0){
+			if (d[d.length-1] != 0){
+				List<T> lt = Arrays.stream(d).boxed().filter(e->e > 0).map(e->list.get(e-1)).limit(len).collect(Collectors.toList());
+				if (lt.size()==len){
+					if (predivate.test(lt)) consumer.accept(lt);
+				}
+			}
+			for(int j=len; 0 <= j; j--){
+				d[j]++;
+				for(int k=j+1; k <= len; k++) {
+					d[k] = d[k-1];
+				}
+				if (d[j] <= n) break;
+			}
+		}
 	}
+	/**
+	 * Predicate 最初に見つかる結果の取得
+	 * @param len 組み合わせ数 nHr の r
+	 * @param predivate 条件
+	 * @return
+	 */
+	public List<T> firstMatch(int len, Predicate<List<T>> predivate){
+		int n = list.size();
+		int[] d = new int[n > len ? n+1 : len+1];
+		for(int i=1; i <= n; i++) d[i] = 1;
+		while(d[0] <= 0){
+			if (d[d.length-1] != 0){
+				List<T> lt = Arrays.stream(d).boxed().filter(e->e > 0).map(e->list.get(e-1)).limit(len).collect(Collectors.toList());
+				if (lt.size()==len){
+					if (predivate.test(lt)) return lt;
+				}
+			}
+			for(int j=len; 0 <= j; j--){
+				d[j]++;
+				for(int k=j+1; k <= len; k++) {
+					d[k] = d[k-1];
+				}
+				if (d[j] <= n) break;
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * 重複あり組み合わせ結果List のイテレータを返す
 	 * <PRE>

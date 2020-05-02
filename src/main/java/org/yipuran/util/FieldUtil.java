@@ -1,7 +1,11 @@
 package org.yipuran.util;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -94,5 +98,21 @@ public final class FieldUtil{
 		}, (a, b)->{})
 		,(v, u)->{});
 		return builder.build();
+	}
+	/**
+	 * 総称型配列を指定値で生成
+	 * @param n 長さ
+	 * @param value nullでないTの値
+	 * @return T[]
+	 * @since Ver 4.14
+	 */
+	public static <T> T[] valueArrays(int n, T value) {
+		@SuppressWarnings("unchecked")
+		T[] t = (T[])Array.newInstance(value.getClass(), n);
+		List<T> l = new ArrayList<>(Collections.emptyList());
+		for(int i=0; i < n; i++){
+			l.add(value);
+		}
+		return l.toArray(t);
 	}
 }
