@@ -1,4 +1,4 @@
-package org.yipuran.util;
+package org.yipuran.util.collection;
 
 import java.util.AbstractMap;
 import java.util.List;
