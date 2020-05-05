@@ -16,7 +16,7 @@ import org.yipuran.util.Fieldgetter;
  * （例）Item クラスは、属性名 price を Integer で Not NULL で持っている。
  * List＜List＜Item＞＞  list;
  *
- * Stream＜List＜Item＞＞ list.stream().sorted(ListComparator.of(3).build0("price"))
+ * Stream＜List＜Item＞＞ list.stream().sorted(ListComparator.of(3).build("price"))
  *
  * </PRE>
  * @since Ver 4.15
@@ -89,9 +89,9 @@ public class NestedListComparator{
 		return cp.get();
 	}
 	/**
-	 * キー複数指定Comparator生成.
-	 * @param name 比較要素属性名
+	 * キー複数指定Comparator生成（リバース指定）.
 	 * @param reverse true=降順、false=昇順
+	 * @param name 比較要素属性名
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")

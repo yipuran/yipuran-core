@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.yipuran.csv.CsvCreator;
 import org.yipuran.csv.Csvprocess;
@@ -89,7 +90,16 @@ public class CsvTest {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-
+		System.out.println("---------- Map ----------------");
+		try(InputStream in = new FileInputStream("c:/work/sample8.csv")){
+			proces.read(new InputStreamReader(in, StandardCharsets.UTF_8), (i, m)->{
+				System.out.println("Line:" + i + " : " +
+					m.entrySet().stream().map(e->"{" + e.getKey() + ":" + e.getValue() + "}").collect(Collectors.joining())
+				);
+			});
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 
 }

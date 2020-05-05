@@ -2,10 +2,9 @@ package org.yipuran.util;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -106,13 +105,43 @@ public final class FieldUtil{
 	 * @return T[]
 	 * @since Ver 4.14
 	 */
-	public static <T> T[] valueArrays(int n, T value) {
+	public static <T> T[] valueArrays(int n, T value){
 		@SuppressWarnings("unchecked")
 		T[] t = (T[])Array.newInstance(value.getClass(), n);
-		List<T> l = new ArrayList<>(Collections.emptyList());
 		for(int i=0; i < n; i++){
-			l.add(value);
+			t[i] = value;
 		}
-		return l.toArray(t);
+		return t;
+	}
+	/**
+	 * 総称型配列を指定値（可変引数）で生成
+	 * @param n 長さ
+	 * @param values 長さ不足分は、null がセットされる。
+	 * @return T[]
+	 * @since Ver 4.16
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T[] valueArrays(int n, T...values){
+		T[] t = (T[])Array.newInstance(values[0].getClass(), n);
+		int vlen = values.length;
+		for(int i=0; i < n; i++)
+			t[i] = i < vlen ? values[i] : null;
+		return t;
+	}
+	/**
+	 * 総称型配列を任意別リストで生成
+	 * @param n 長さ
+	 * @param cls 生成する配列のクラス
+	 * @param list 任意別リスト
+	 * @param function 任意別リストの値から結果配列格納値を求めるFunction
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T,U> T[] valueArrays(int n, Class<T> cls,  List<U> list, Function<U, T> function){
+		T[] t = (T[])Array.newInstance(cls, n);
+		int vlen = list.size();
+		for(int i=0; i < n; i++)
+			t[i] = i < vlen ? function.apply(list.get(i)) : null;
+		return t;
 	}
 }
