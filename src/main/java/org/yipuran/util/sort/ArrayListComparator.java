@@ -51,27 +51,6 @@ public class ArrayListComparator{
 		});
 		return cp.get();
 	}
-	/**
-	 * キー複数指定Comparator生成.
-	 * @param names 比較要素属性名
-	 * @return
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public <T> Comparator<T[]> build(String...names){
-		if (names.length==1) return build(names[0]);
-		Comparator<T[]> c = IntStream.range(0, names.length).boxed()
-		.<Comparator<T[]>>map(i->Comparator.comparing(t->(Comparable)Fieldgetter.of(e->names[i]).apply(t[0])))
-		.collect(()->Comparator.comparing(t->(Comparable)Fieldgetter.of(e->names[0]).apply(t[0]))
-		,(t, r)->r.thenComparing(t),(t, r)->{});
-		AtomicReference<Comparator<T[]>> cp = new AtomicReference<>(c);
-
-		IntStream.range(1, size).boxed().forEach(i->{
-			IntStream.range(0, names.length).boxed().forEach(ni->{
-				cp.set(cp.get().thenComparing( Comparator.comparing(t->(Comparable) Fieldgetter.of(e->names[ni]).apply(t[i]))));
-			});
-		});
-		return cp.get();
-	}
 
 	/**
 	 * Comparator生成（リバース指定）.
@@ -89,27 +68,5 @@ public class ArrayListComparator{
 		if (reverse) cp.set(cp.get().reversed());
 		return cp.get();
 	}
-	/**
-	 * キー複数指定Comparator生成（リバース指定）.
-	 * @param reverse true=降順、false=昇順
-	 * @param name 比較要素属性名
-	 * @return
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public <T> Comparator<T[]> build(boolean reverse, String...names){
-		if (names.length==1) return build(names[0]);
-		Comparator<T[]> c = IntStream.range(0, names.length).boxed()
-		.<Comparator<T[]>>map(i->Comparator.comparing(t->(Comparable)Fieldgetter.of(e->names[i]).apply(t[0])))
-		.collect(()->Comparator.comparing(t->(Comparable)Fieldgetter.of(e->names[0]).apply(t[0]))
-		,(t, r)->r.thenComparing(t),(t, r)->{});
-		AtomicReference<Comparator<T[]>> cp = new AtomicReference<>(c);
 
-		IntStream.range(1, size).boxed().forEach(i->{
-			IntStream.range(0, names.length).boxed().forEach(ni->{
-				cp.set(cp.get().thenComparing( Comparator.comparing(t->(Comparable) Fieldgetter.of(e->names[ni]).apply(t[i]))));
-			});
-		});
-		if (reverse) cp.set(cp.get().reversed());
-		return cp.get();
-	}
 }

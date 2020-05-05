@@ -67,49 +67,4 @@ public class NestedListComparator{
 		return cp.get();
 	}
 
-	/**
-	 * キー複数指定Comparator生成.
-	 * @param name 比較要素属性名
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public <T> Comparator<List<T>> build(String...names){
-		if (names.length==1) return build(names[0]);
-		Comparator<List<T>> c = IntStream.range(0, names.length).boxed()
-		.<Comparator<List<T>>>map(i->Comparator.comparing(t->(Comparable)Fieldgetter.of(e->names[i]).apply(t.get(0))))
-		.collect(()->Comparator.comparing(t->(Comparable)Fieldgetter.of(e->names[0]).apply(t.get(0)))
-		,(t, r)->r.thenComparing(t),(t, r)->{});
-		AtomicReference<Comparator<List<T>>> cp = new AtomicReference<>(c);
-
-		IntStream.range(1, size).boxed().forEach(i->{
-			IntStream.range(0, names.length).boxed().forEach(ni->{
-				cp.set(cp.get().thenComparing( Comparator.comparing(t->(Comparable)Fieldgetter.of(e->names[ni]).apply(t.get(i)))));
-			});
-		});
-		return cp.get();
-	}
-	/**
-	 * キー複数指定Comparator生成（リバース指定）.
-	 * @param reverse true=降順、false=昇順
-	 * @param name 比較要素属性名
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public <T> Comparator<List<T>> build(boolean reverse, String...names){
-		if (names.length==1) return build(names[0]);
-		Comparator<List<T>> c = IntStream.range(0, names.length).boxed()
-		.<Comparator<List<T>>>map(i->Comparator.comparing(t->(Comparable)Fieldgetter.of(e->names[i]).apply(t.get(0))))
-		.collect(()->Comparator.comparing(t->(Comparable)Fieldgetter.of(e->names[0]).apply(t.get(0)))
-		,(t, r)->r.thenComparing(t),(t, r)->{});
-		AtomicReference<Comparator<List<T>>> cp = new AtomicReference<>(c);
-
-		IntStream.range(1, size).boxed().forEach(i->{
-			IntStream.range(0, names.length).boxed().forEach(ni->{
-				cp.set(cp.get().thenComparing( Comparator.comparing(t->(Comparable)Fieldgetter.of(e->names[ni]).apply(t.get(i)))));
-			});
-		});
-		if (reverse) cp.set(cp.get().reversed());
-		return cp.get();
-	}
-
 }
