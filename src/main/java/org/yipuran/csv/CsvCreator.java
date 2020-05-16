@@ -31,6 +31,13 @@ import org.yipuran.util.BOMfunction;
  * }catch(Exception e){
  *    e.printStackTrace();
  * }
+ *
+ * BOM付きUTF-8ダブルクォート括り の場合、
+ * try(OutputStream out = new FileOutputStream("c:/work/sample.csv")){
+ *    c.createBomUTF8WithDblQuot(out);
+ * }catch(Exception e){
+ *    e.printStackTrace();
+ * }
  * </PRE>
  */
 @FunctionalInterface
@@ -92,6 +99,25 @@ public interface CsvCreator extends Serializable{
 					sary[i] = sary[i]==null ? "" : sary[i];
 				}
 				csvWriter.writeLine(sary);
+			}
+		}catch(Exception e){
+			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
+	/**
+	 * BOM付きUTF-8ダブルクォート括り ＣＳＶ出力実行
+	 * @param out OutputStream
+	 */
+	default public void createBomUTF8WithDblQuot(OutputStream out){
+		String lineSeparator = System.getProperty("line.separator");
+		try(OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8)){
+			BOMfunction.push(out);
+			for(String[] sary:getSupplier().get()){
+				for(int i=0;i < sary.length;i++){
+					sary[i] = sary[i]==null ? "" : sary[i];
+				}
+				writer.write(csvline(sary));
+				writer.write(lineSeparator);
 			}
 		}catch(Exception e){
 			throw new RuntimeException(e.getMessage(), e);

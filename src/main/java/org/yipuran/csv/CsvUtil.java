@@ -96,11 +96,11 @@ public final class CsvUtil{
 	 * 文字列split（列の縮小を回避）.
 	 * <pre>
 	 * 分割サンプル
-	 * split(',', "A,B,C")--> "A", "B", "C"
-	 * split(',', "A,,C") --> "A", "", "C"
-	 * split(',', ",,C")  --> "", "" , "C"
-	 * split(',', ",")    --> "", ""
-	 * split(',', "")     --> ""
+	 * splitAry(',', "A,B,C")--> "A", "B", "C"
+	 * splitAry(',', "A,,C") --> "A", "", "C"
+	 * splitAry(',', ",,C")  --> "", "" , "C"
+	 * splitAry(',', ",")    --> "", ""
+	 * splitAry(',', "")     --> ""
 	 * </pre>
 	 * @param sep 区切り文字char
 	 * @param str 対象文字列
