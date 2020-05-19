@@ -21,8 +21,21 @@ or [Wiki Page](../../wiki)
     <dependency>
         <groupId>org.yipuran.core</groupId>
         <artifactId>yipuran-core</artifactId>
-        <version>4.17</version>
+        <version>4.18</version>
     </dependency>
 </dependencies>
 
+```
+
+
+## Setup gradle
+```
+repositories {
+    mavebCentral()
+    maven { url 'https://github.com/yipuran/yipuran-core/mvn-repo'  }
+}
+
+dependencied {
+    compile 'org.yipuran.core:yipuran-core:4.18'
+}
 ```
