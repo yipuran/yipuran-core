@@ -1,4 +1,4 @@
-package org.yipuran.util;
+package org.yipuran.csv;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -30,8 +30,21 @@ public final class BOMfunction{
 		if (b[0] != -17 || b[1] != -69 || b[2] != -65) return str;
 		byte[] n = new byte[b.length-3];
 		for(int i=0,k=3; i < n.length;i++, k++){
-			n[0] = b[k];
+			n[i] = b[k];
 		}
 		return new String(n);
+	}
+	/**
+	 * 文字列がBOM付き文字であるか返す
+	 * @param str 文字列
+	 * @return true=BOM付き
+	 * @since 4.18
+	 */
+	public static boolean match(String str){
+		if (str==null) return false;
+		byte[] b = str.getBytes();
+		if (b.length < 3) return false;
+		if (b[0] == -17 && b[1] == -69 && b[2] == -65) return true;
+		return false;
 	}
 }
