@@ -1,5 +1,6 @@
 package org.yipuran.csv.test;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.yipuran.csv.CsvCreator;
+import org.yipuran.csv.CsvUtil;
 import org.yipuran.csv.Csvprocess;
 
 /**
@@ -36,10 +38,12 @@ public class CsvTest2{
 
 		try(OutputStream out = new FileOutputStream("c:/work/sample8bom.csv")){
 			c.createBomUTF8WithDblQuot(out);
+//			c.createBomUTF8(out);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 		Csvprocess  proces = new Csvprocess();
+		//Csvprocess  proces = new Csvprocess(true);
 
 		System.out.println("--------------------------");
 		try(InputStream in = new FileInputStream("c:/work/sample8bom.csv")){
@@ -77,6 +81,19 @@ public class CsvTest2{
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+
+		System.out.println("--------------------------");
+		try(InputStream in = new FileInputStream("c:/work/sample81.csv")){
+			proces.readNoheader(new InputStreamReader(in, StandardCharsets.UTF_8), (i, p)->{
+				System.out.print(i + ": " + p.size() + " : ");
+				p.stream().forEach(s->System.out.print("["+s+"]"));
+				System.out.print("\n");
+			});
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		System.out.println("--------------------------");
+		System.out.println("sample8bom = "+ CsvUtil.isBOMutf8(new File("c:/work/sample8bom.csv")) );
 
 
 	}

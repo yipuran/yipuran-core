@@ -57,7 +57,6 @@ public class CSVReader
     private int bufPos = 0;
     private States state = States.Appending;
 
-
     /**
      * Constructs a CSV reader with the default options.
      * @param reader input to read from.
@@ -78,6 +77,10 @@ public class CSVReader
     {
         this( reader, CSVConstants.DEFAULT_DELIMITER, comment );
     }
+    public CSVReader( final Reader reader, final char comment , boolean blankIsNull)
+    {
+        this( reader, CSVConstants.DEFAULT_DELIMITER, comment , blankIsNull);
+    }
 
     /**
      * Constructs a CSV reader with the specified options.
@@ -91,6 +94,15 @@ public class CSVReader
     {
         this.reader = reader;
         this.parser = new CSVParser( delimiter, true );
+        this.comment = comment + "";
+        this.commentChar = comment;
+    }
+
+    public CSVReader( final Reader reader, final char delimiter, final char comment , boolean blankIsNull)
+    {
+        this.reader = reader;
+        // "" → null フラグ: true なら解析結果 String を null にする
+        this.parser = blankIsNull ? new CSVNullableParser( delimiter, true ) : new CSVParser( delimiter, true );
         this.comment = comment + "";
         this.commentChar = comment;
     }

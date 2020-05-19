@@ -53,10 +53,29 @@ import org.yipuran.csv4j.ProcessingException;
  *      });
  * });
  *
+ * デフォルトコンストラクタではなく、boolean引数指定でフィールド区切り、カンマが連続した時に、空文字でなく
+ * null として読み込む指定が可能である。
+ *
  * </PRE>
  * @since version 4.9
  */
 public class Csvprocess extends CSVStreamProcessor{
+	private boolean blankIsNull = false;
+	/**
+	 * デフォルトコンストラクタ.
+	 * ブランク、",," は、null にしないで、空文字として読み込む。
+	 */
+	public Csvprocess(){}
+
+	/**
+	 * ブランク→null指定コンストラクタ.
+	 * @param true=ブランク、",," は、null として読み込む。
+	 * @since 4.18
+	 */
+	public Csvprocess(boolean blankIsNull) {
+		this.blankIsNull = blankIsNull;
+	}
+
 	/**
 	 * ヘッダ有りＣＳＶ読込み実行.
 	 * @param inReader InputStreamReader
@@ -67,7 +86,7 @@ public class Csvprocess extends CSVStreamProcessor{
 	 */
 	public void read(InputStreamReader inReader, Consumer<List<String>> header, BiConsumer<Integer, List<String>> processor)
 	throws IOException, ProcessingException{
-		CSVReader reader = new CSVReader(new BufferedReader(inReader), getComment());
+		CSVReader reader = new CSVReader(new BufferedReader(inReader), getComment(), blankIsNull);
 		try{
 			int lineCount = 0;
 			while(true){
@@ -75,6 +94,11 @@ public class Csvprocess extends CSVStreamProcessor{
 				if (fields.size()==0) break;
 				try{
 					if (isHasHeader() && lineCount==0){
+						String rep = fields.get(0);
+						if (BOMfunction.match(rep)) {
+							fields.remove(0);
+							fields.add(0, BOMfunction.chop(rep));
+						}
 						header.accept(fields);
 					}else{
 						processor.accept(lineCount, fields);
@@ -97,12 +121,19 @@ public class Csvprocess extends CSVStreamProcessor{
 	 * @throws ParseException
 	 */
 	public void readNoheader(InputStreamReader inReader, BiConsumer<Integer, List<String>> processor) throws IOException, ProcessingException, ParseException{
-		CSVReader reader = new CSVReader(new BufferedReader(inReader), getComment());
+		CSVReader reader = new CSVReader(new BufferedReader(inReader), getComment(), blankIsNull);
 		try{
 			int lineIndex = 0;
 			while(true){
 				List<String> fields = reader.readLine();
 				if (fields.size()==0) break;
+				if (lineIndex==0){
+					String rep = fields.get(0);
+					if (BOMfunction.match(rep)) {
+						fields.remove(0);
+						fields.add(0, BOMfunction.chop(rep));
+					}
+				}
 				try{
 					processor.accept(lineIndex, fields);
 				}catch(Exception e){
@@ -126,9 +157,8 @@ public class Csvprocess extends CSVStreamProcessor{
 	 * @throws ProcessingException
 	 * @since 4.16
 	 */
-	public void read(InputStreamReader inReader, BiConsumer<Integer, Map<String, String>> processor)
-	throws IOException, ProcessingException{
-		CSVReader reader = new CSVReader(new BufferedReader(inReader), getComment());
+	public void read(InputStreamReader inReader, BiConsumer<Integer, Map<String, String>> processor) throws IOException, ProcessingException{
+		CSVReader reader = new CSVReader(new BufferedReader(inReader), getComment(), blankIsNull);
 		try{
 			Map<Integer, String> headerMap = new HashMap<>();
 			int lineCount = 0;
@@ -137,6 +167,11 @@ public class Csvprocess extends CSVStreamProcessor{
 				if (fields.size()==0) break;
 				try{
 					if (isHasHeader() && lineCount==0){
+						String rep = fields.get(0);
+						if (BOMfunction.match(rep)) {
+							fields.remove(0);
+							fields.add(0, BOMfunction.chop(rep));
+						}
 						int i = 0;
 						for(String key:fields){
 							headerMap.put(i, key);

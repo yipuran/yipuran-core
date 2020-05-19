@@ -1,10 +1,9 @@
 package org.yipuran.csv;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -57,42 +56,6 @@ public final class CsvUtil{
 	}
 
 	/**
-	 * ＣＳＶ→List&lt;String&gt;
-	 * 対象ＣＳＶサイズが膨大なサイズである場合は、使用すべきでない。
-	 * @param filepath ＣＳＶファイルパス
-	 * @param quotSwitch true=括り文字あり
-	 * @return String[] リスト
-	 * @throws IOException
-	 */
-	@Deprecated
-	public static List<String[]> parse(String filepath, boolean quotSwitch) throws IOException{
-		File file = new File(filepath);
-		if (!file.exists() || file.isDirectory()){
-			throw new FileNotFoundException("File Not Found ["+filepath+"]");
-		}
-		List<String[]> rtn = new ArrayList<String[]>();
-		try(BufferedReader br = new BufferedReader(new FileReader(file))){
-			String line;
-			if (quotSwitch){
-				while((line=br.readLine())!=null){
-					String[] strs = splitAry(',',line);
-					for(int i=0;i < strs.length;i++){
-						if (strs[i].length() > 1){
-							strs[i] = strs[i].substring(1,strs[i].length()-1);
-						}
-					}
-					rtn.add(strs);
-				}
-			}else{
-				while((line=br.readLine())!=null){
-					rtn.add(splitAry(',',line));
-				}
-			}
-		}
-		return rtn;
-	}
-
-	/**
 	 * 文字列split（列の縮小を回避）.
 	 * <pre>
 	 * 分割サンプル
@@ -132,5 +95,23 @@ public final class CsvUtil{
 		}
 		return rtn;
 	}
-
+	/**
+	 * ファイルがBOM付きかチェックする。
+	 * @param file 対象File
+	 * @return true＝BOM付きである。
+	 * @since 4.18
+	 */
+	public static boolean isBOMutf8(File file){
+		boolean rtn = false;
+		try(InputStream in = new FileInputStream(file)){
+			byte[] b = new byte[3];
+			int r = in.read(b);
+			if (r==3) {
+				if (b[0] == -17 && b[1] == -69 && b[2] == -65) rtn = true;
+			}
+		}catch(IOException e){
+			throw new RuntimeException(e.getMessage());
+		}
+		return rtn;
+	}
 }

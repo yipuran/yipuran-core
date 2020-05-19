@@ -10,7 +10,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.yipuran.csv4j.CSVWriter;
-import org.yipuran.util.BOMfunction;
 /**
  * ＣＳＶ生成インターフェース.
  * <PRE>

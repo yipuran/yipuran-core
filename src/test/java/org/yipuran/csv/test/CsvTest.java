@@ -1,5 +1,6 @@
 package org.yipuran.csv.test;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.yipuran.csv.CsvCreator;
+import org.yipuran.csv.CsvUtil;
 import org.yipuran.csv.Csvprocess;
 
 /**
@@ -43,6 +45,7 @@ public class CsvTest {
 		}
 
 		Csvprocess  proces = new Csvprocess();
+		//Csvprocess  proces = new Csvprocess(true);
 		try(InputStream in = new FileInputStream("c:/work/sample.csv")){
 			proces.readNoheader(new InputStreamReader(in, "MS932"), (i, p)->{
 				System.out.print(i + ": " + p.size() + " : ");
@@ -100,6 +103,9 @@ public class CsvTest {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+		System.out.println("--------------------------");
+		System.out.println("sample8 = "+ CsvUtil.isBOMutf8(new File("c:/work/sample8.csv")));
+		System.out.println("sample = "+ CsvUtil.isBOMutf8(new File("c:/work/sample.csv")));
 	}
 
 }
