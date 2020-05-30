@@ -1,11 +1,7 @@
 package org.yipuran.http;
 
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * HttpClientを生成するビルダー.
@@ -13,15 +9,12 @@ import java.util.Map;
 public final class HttpClientBuilder{
 	private URL url;
 	private String method;
-	private Map<String, String> map;
+	private String contentType;
 	/**
 	 * private constructor.
 	 * @param path URL path
-	 * @param method HTTPメソッド、"POST" か "GET" を指定
 	 */
-	private HttpClientBuilder(String path, String method){
-		map = new HashMap<>();
-		this.method = method.toUpperCase();
+	private HttpClientBuilder(String path){
 		try{
 			url = new URL(path);
 		}catch(MalformedURLException e){
@@ -31,26 +24,27 @@ public final class HttpClientBuilder{
 	/**
 	 * HttpClientBuilder生成.
 	 * @param path HTTP要求するAPI要求先のURL
-	 * @param method HTTPメソッド、"POST" か "GET" を指定
 	 * @return HttpClientBuilder
 	 */
-	public static HttpClientBuilder of(String path, String method){
-		return new HttpClientBuilder(path, method);
+	public static HttpClientBuilder of(String path){
+		return new HttpClientBuilder(path);
 	}
 	/**
-	 * HTTPパラメータ追加.
-	 * valueは本メソッド内で ＵＲＬエンコードされるのでエンコードして呼びだしてはいけない。
-	 * @param key キー
-	 * @param value 値 エンコードして呼びだしてはいけない。
+	 * メソッド指定
+	 * @param method "POST" or "GET"
 	 * @return HttpClientBuilder
 	 */
-	public HttpClientBuilder add(String key, String value){
-		if (key != null){
-			try{
-				map.put(key, value==null ? null : URLEncoder.encode(value, "UTF-8"));
-			}catch(UnsupportedEncodingException e){
-			}
-		}
+	public HttpClientBuilder method(String method) {
+		this.method = method.toUpperCase();
+		return this;
+	}
+	/**
+	 * ContentType指定
+	 * @param contentType contentType指定文字列
+	 * @return HttpClientBuilder
+	 */
+	public HttpClientBuilder contentType(String contentType) {
+		this.contentType = contentType;
 		return this;
 	}
 	/**
@@ -58,6 +52,9 @@ public final class HttpClientBuilder{
 	 * @return HttpClient
 	 */
 	public HttpClient build(){
-		return new HttpClient(url, method, map);
+		if (method==null) {
+			throw new RuntimeException("method is unknown");
+		}
+		return new HttpClient(url, method, contentType);
 	}
 }

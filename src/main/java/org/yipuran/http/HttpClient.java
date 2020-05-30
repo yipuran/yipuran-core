@@ -4,14 +4,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * HttpClient.
@@ -20,12 +20,15 @@ import java.util.stream.Collectors;
  * 要求先 URL パス、要求の種類(POST/GET)、要求するパラメータは、HttpClientBuilder で指定する。
  * HttpClientBuilder を使用することで送信するパラメータ値のエンコードは保証される。
  *
- * HttpClient client = HttpClientBuilder.of("http://xxx/xxx", "POST")
- *                    .add("a", "1")
- *                    .add("b", "2")
- *                    .add("c", "{\"name\":\"apple\",\"price\":150}")
+ * HttpClient client = HttpClientBuilder.of("http://xxx/xxx")
+ *                    .method("POST")
+ *                    .contentType("application/JSON; charset=utf-8")
  *                    .build();
- * String result = client.execute((t, m)->{
+ * String result = client.execute(ThrowableConsumer.of(out->{
+ *    OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+ *    writer.write("{\"name\":\"apple\",\"price\":150}");
+ *    writer.flush();
+ * }), (t, m)->{
  *    logger.debug("# ContentType = " + m );
  *    ((Map&lt;String, List&lt;String&gt;&gt;&gt;)m).entrySet().stream().forEach(e->{
  *    logger.info("headerName = " + e.getKey());
@@ -37,9 +40,13 @@ import java.util.stream.Collectors;
  *    }
  * });
  *または、
- * public void execute(BiConsumer&lt;String, Map&lt;String, List&lt;String&gt;&gt;&gt; headconsumer, Consumer&lt;InputStream&gt; readconsumer)
+ * public void execute(Consumer&lt;OutputStream&gt; outconsumer, BiConsumer&lt;String, Map&lt;String, List&lt;String&gt;&gt;&gt; headconsumer, Consumer&lt;InputStream&gt; readconsumer)
  *
- * client.execute((type, m)->{
+ * client.execute(ThrowableConsumer.of(out->{
+ *    OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+ *    writer.write("{\"name\":\"apple\",\"price\":150}");
+ *    writer.flush();
+ * }), (type, m)->{
  *    System.out.println("type = " + type);
  *    m.entrySet().stream().forEach(e->{
  *       System.out.println(e.getKey() + " → " + e.getValue());
@@ -62,25 +69,27 @@ import java.util.stream.Collectors;
 public class HttpClient{
 	private URL url;
 	private String method;
-	private Map<String, String> parameters;
+	private String contentType;
 	private int httpresponsecode;
 	/**
 	 * コンストラクタ.
 	 * @param url HTTP先URL
 	 * @param method HTTPメソッド
 	 * @param map パラメータMap 値は、URLエンコードされてなければならない。HttpClientBuilder を使用することで送信するパラメータ値のエンコードは保証される。
+	 * @param contentType Content-Type をHTTPヘッダにつける場合に、null 以外を指定
 	 */
-	protected HttpClient(URL url, String method, Map<String, String> map){
+	protected HttpClient(URL url, String method, String contentType){
 		this.url = url;
 		this.method = method;
-		this.parameters = map;
+		this.contentType = contentType;
 	}
 	/**
 	 * HTTP要求送受信.
+	 * @param outconsumer 送信 OutputStream Consumer
 	 * @param consumer HTTP通信結果、受け取ったHTTP ContentType、HTTPヘッダを読取り処理する BiConsumer
 	 * @return 要求した結果を受信したテキスト文字列。受信失敗は、null を返す。
 	 */
-	public String execute(BiConsumer<String, Map<String, List<String>>> consumer){
+	public String execute(Consumer<OutputStream> outconsumer, BiConsumer<String, Map<String, List<String>>> consumer){
 		String result = null;
 		try{
 			HttpURLConnection uc = (HttpURLConnection)url.openConnection();
@@ -89,28 +98,31 @@ public class HttpClient{
 			uc.setDoOutput(true);              // こちらからのデータ送信を可能とする
 			uc.setReadTimeout(0);              // 読み取りタイムアウト値をミリ秒単位で設定(0は無限)
 			uc.setRequestMethod(method);       // URL 要求のメソッドを設定
-			String sendstring = parameters.entrySet().stream().map(e->e.getKey() + "=" + e.getValue()).collect(Collectors.joining("&"));
-			uc.setRequestProperty("Content-Length", Integer.toString(sendstring.getBytes("utf8").length));
+			if (contentType != null) uc.setRequestProperty("Content-Type", contentType);
 			// コネクション確立→送信
 			uc.connect();
-			OutputStreamWriter osw = new OutputStreamWriter(uc.getOutputStream(), "utf8");
-			osw.write(sendstring);
-			osw.flush();
+
+			try(OutputStream out = uc.getOutputStream()){
+				outconsumer.accept(out);
+				out.flush();
+			}
+
 			httpresponsecode = uc.getResponseCode();
 			if (httpresponsecode != 200){
 				return null;
 			}
+
 			// 戻り値取得
 			consumer.accept(uc.getContentType(), uc.getHeaderFields());
 			// 応答読込
-			try(BufferedReader in = new BufferedReader(new InputStreamReader(uc.getInputStream(), "utf8"))){
-				StringBuffer out = new StringBuffer();
+			try(BufferedReader in = new BufferedReader(new InputStreamReader(uc.getInputStream(), StandardCharsets.UTF_8))){
+				StringBuffer sout = new StringBuffer();
 				char[] buf = new char[1024];
 				int n;
 				while((n = in.read(buf)) >= 0){
-					out.append(buf, 0, n);
+					sout.append(buf, 0, n);
 				}
-				result = out.toString();
+				result = sout.toString();
 			}catch(IOException e){
 				throw new RuntimeException(e);
 			}
@@ -122,10 +134,11 @@ public class HttpClient{
 
 	/**
 	 * Stream受信（HTTP要求→ダウンロード）.
+	 * @param outconsumer 送信 OutputStream Consumer
 	 * @param headconsumer HTTP通信結果、受け取ったHTTP ContentType、HTTPヘッダを読取り処理する BiConsumer
 	 * @param readconsumer 要求した結果の受け取り InputStream を指定する Consumer
 	 */
-	public void execute(BiConsumer<String, Map<String, List<String>>> headconsumer, Consumer<InputStream> readconsumer){
+	public void execute(Consumer<OutputStream> outconsumer, BiConsumer<String, Map<String, List<String>>> headconsumer, Consumer<InputStream> readconsumer){
 		try{
 			HttpURLConnection uc = (HttpURLConnection)url.openConnection();
 			uc = (HttpURLConnection)url.openConnection();
@@ -133,13 +146,14 @@ public class HttpClient{
 			uc.setDoOutput(true);              // こちらからのデータ送信を可能とする
 			uc.setReadTimeout(0);              // 読み取りタイムアウト値をミリ秒単位で設定(0は無限)
 			uc.setRequestMethod(method);       // URL 要求のメソッドを設定
-			String sendstring = parameters.entrySet().stream().map(e->e.getKey() + "=" + e.getValue()).collect(Collectors.joining("&"));
-			uc.setRequestProperty("Content-Length", Integer.toString(sendstring.getBytes("utf8").length));
+			if (contentType != null) uc.setRequestProperty("Content-Type", contentType);
 			// コネクション確立→送信
-			uc.connect();
-			OutputStreamWriter osw = new OutputStreamWriter(uc.getOutputStream(), "utf8");
-			osw.write(sendstring);
-			osw.flush();
+
+			try(OutputStream out = uc.getOutputStream()){
+				outconsumer.accept(out);
+				out.flush();
+			}
+
 			httpresponsecode = uc.getResponseCode();
 			if (httpresponsecode != 200){
 				throw new RuntimeException("HTTP response " + httpresponsecode);

@@ -7,8 +7,7 @@ Throwable なラムダ、GenericBuilder　など広範囲ではある。各機�
 **（注意）バージョン 4.19 より、CSVの処理は、[yipuran-csv](https://github.com/yipuran/yipuran-csv) に分岐し、yipuran-core からは消滅します。**
 
 ## Document
-Extract doc/yipuran-core-doc.zip and see the Javadoc
-or [Wiki Page](../../wiki)
+[Wiki Page](../../wiki)
 
 ## Setup pom.xml
 ```
@@ -23,7 +22,7 @@ or [Wiki Page](../../wiki)
     <dependency>
         <groupId>org.yipuran.core</groupId>
         <artifactId>yipuran-core</artifactId>
-        <version>4.19</version>
+        <version>4.20</version>
     </dependency>
 </dependencies>
 
@@ -38,6 +37,6 @@ repositories {
 }
 
 dependencied {
-    compile 'org.yipuran.core:yipuran-core:4.19'
+    compile 'org.yipuran.core:yipuran-core:4.20'
 }
 ```

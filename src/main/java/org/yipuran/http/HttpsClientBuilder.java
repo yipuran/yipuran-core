@@ -1,11 +1,7 @@
 package org.yipuran.http;
 
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * HttpsClientを生成するビルダー.
@@ -13,19 +9,16 @@ import java.util.Map;
 public final class HttpsClientBuilder{
 	private URL url;
 	private String method;
+	private String contentType;
 	private String proxy_server;
 	private String proxy_user;
 	private String proxy_passwd;
 	private Integer proxy_port;
-	private Map<String, String> map;
 	/**
 	 * private constructor.
 	 * @param path URL path
-	 * @param method HTTPメソッド、"POST" か "GET" を指定
 	 */
-	private HttpsClientBuilder(String path, String method){
-		map = new HashMap<>();
-		this.method = method.toUpperCase();
+	private HttpsClientBuilder(String path){
 		try{
 			url = new URL(path);
 		}catch(MalformedURLException e){
@@ -35,28 +28,30 @@ public final class HttpsClientBuilder{
 	/**
 	 * HttpsClientBuilder生成.
 	 * @param path HTTP要求するAPI要求先のURL
-	 * @param method HTTPメソッド、"POST" か "GET" を指定
 	 * @return HttpsClientBuilder
 	 */
-	public static HttpsClientBuilder of(String path, String method){
-		return new HttpsClientBuilder(path, method);
+	public static HttpsClientBuilder of(String path){
+		return new HttpsClientBuilder(path);
 	}
 	/**
-	 * HTTPパラメータ追加.
-	 * valueは本メソッド内で ＵＲＬエンコードされるのでエンコードして呼びだしてはいけない。
-	 * @param key キー
-	 * @param value 値 エンコードして呼びだしてはいけない。
+	 * メソッド指定
+	 * @param method "POST" or "GET"
 	 * @return HttpsClientBuilder
 	 */
-	public HttpsClientBuilder add(String key, String value){
-		if (key != null){
-			try{
-				map.put(key, value==null ? null : URLEncoder.encode(value, "UTF-8"));
-			}catch(UnsupportedEncodingException e){
-			}
-		}
+	public HttpsClientBuilder method(String method) {
+		this.method = method.toUpperCase();
 		return this;
 	}
+	/**
+	 * ContentType指定
+	 * @param contentType contentType指定文字列
+	 * @return HttpsClientBuilder
+	 */
+	public HttpsClientBuilder contentType(String contentType) {
+		this.contentType = contentType;
+		return this;
+	}
+
 	/**
 	 * Proxy使用指定.
 	 * @param proxy_server Proxyサーバ名
@@ -77,7 +72,10 @@ public final class HttpsClientBuilder{
 	 * @return HttpsClient
 	 */
 	public HttpsClient build(){
-		if (proxy_server==null) return new HttpsClient(url, method, map);
-		return new HttpsClient(url, method, proxy_server, proxy_user, proxy_passwd, proxy_port, map);
+		if (method==null) {
+			throw new RuntimeException("method is unknown");
+		}
+		if (proxy_server==null) return new HttpsClient(url, method, contentType);
+		return new HttpsClient(url, method, contentType, proxy_server, proxy_user, proxy_passwd, proxy_port);
 	}
 }
