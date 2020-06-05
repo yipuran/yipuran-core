@@ -33,7 +33,7 @@ Throwable なラムダ、GenericBuilder　など広範囲ではある。各機�
 ```
 repositories {
     mavebCentral()
-    maven { url 'https://github.com/yipuran/yipuran-core/mvn-repo'  }
+    maven { url 'https://raw.github.com/yipuran/yipuran-core/mvn-repo'  }
 }
 
 dependencied {
