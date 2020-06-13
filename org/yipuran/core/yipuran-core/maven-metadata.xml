@@ -3,7 +3,7 @@
   <groupId>org.yipuran.core</groupId>
   <artifactId>yipuran-core</artifactId>
   <versioning>
-    <release>4.20</release>
+    <release>4.21</release>
     <versions>
       <version>4.2</version>
       <version>4.3</version>
@@ -24,7 +24,8 @@
       <version>4.18</version>
       <version>4.19</version>
       <version>4.20</version>
+      <version>4.21</version>
     </versions>
-    <lastUpdated>20200530123417</lastUpdated>
+    <lastUpdated>20200613035833</lastUpdated>
   </versioning>
 </metadata>
