@@ -2,6 +2,8 @@ package org.yipuran.http;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * HttpClientを生成するビルダー.
@@ -10,11 +12,13 @@ public final class HttpClientBuilder{
 	private URL url;
 	private String method;
 	private String contentType;
+	private Map<String, String> headerOptions;
 	/**
 	 * private constructor.
 	 * @param path URL path
 	 */
 	private HttpClientBuilder(String path){
+		headerOptions = new HashMap<>();
 		try{
 			url = new URL(path);
 		}catch(MalformedURLException e){
@@ -48,6 +52,16 @@ public final class HttpClientBuilder{
 		return this;
 	}
 	/**
+	 * Header property 追加.
+	 * @param name key
+	 * @param value value
+	 * @return HttpClientBuilder
+	 */
+	public HttpClientBuilder addHeaderProperty(String name, String value) {
+		headerOptions.put(name, value);
+		return this;
+	}
+	/**
 	 * HttpClient生成.
 	 * @return HttpClient
 	 */
@@ -55,6 +69,6 @@ public final class HttpClientBuilder{
 		if (method==null) {
 			throw new RuntimeException("method is unknown");
 		}
-		return new HttpClient(url, method, contentType);
+		return new HttpClient(url, method, contentType, headerOptions);
 	}
 }

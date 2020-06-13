@@ -2,6 +2,8 @@ package org.yipuran.http;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * HttpsClientを生成するビルダー.
@@ -10,6 +12,7 @@ public final class HttpsClientBuilder{
 	private URL url;
 	private String method;
 	private String contentType;
+	private Map<String, String> headerOptions;
 	private String proxy_server;
 	private String proxy_user;
 	private String proxy_passwd;
@@ -19,6 +22,7 @@ public final class HttpsClientBuilder{
 	 * @param path URL path
 	 */
 	private HttpsClientBuilder(String path){
+		headerOptions = new HashMap<>();
 		try{
 			url = new URL(path);
 		}catch(MalformedURLException e){
@@ -51,7 +55,16 @@ public final class HttpsClientBuilder{
 		this.contentType = contentType;
 		return this;
 	}
-
+	/**
+	 * Header property 追加.
+	 * @param name key
+	 * @param value value
+	 * @return HttpsClientBuilder
+	 */
+	public HttpsClientBuilder addHeaderProperty(String name, String value) {
+		headerOptions.put(name, value);
+		return this;
+	}
 	/**
 	 * Proxy使用指定.
 	 * @param proxy_server Proxyサーバ名
@@ -75,7 +88,7 @@ public final class HttpsClientBuilder{
 		if (method==null) {
 			throw new RuntimeException("method is unknown");
 		}
-		if (proxy_server==null) return new HttpsClient(url, method, contentType);
-		return new HttpsClient(url, method, contentType, proxy_server, proxy_user, proxy_passwd, proxy_port);
+		if (proxy_server==null) return new HttpsClient(url, method, contentType, headerOptions);
+		return new HttpsClient(url, method, contentType, headerOptions, proxy_server, proxy_user, proxy_passwd, proxy_port);
 	}
 }

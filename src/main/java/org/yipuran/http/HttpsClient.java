@@ -1,16 +1,12 @@
 package org.yipuran.http;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,25 +29,10 @@ import javax.net.ssl.X509TrustManager;
  *                    .method("POST")
  *                    .contentType("application/JSON; charset=utf-8")
  *                    .build();
- * String result = client.execute(ThrowableConsumer.of(out->{
- *    OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
- *    writer.write("{\"name\":\"apple\",\"price\":150}");
- *    writer.flush();
- * }), (t, m)->{
- *    logger.debug("# ContentType = " + m );
- *    ((Map&lt;String, List&lt;String&gt;&gt;&gt;)m).entrySet().stream().forEach(e->{
- *    logger.info("headerName = " + e.getKey());
- *    List&lt;String&gt; l = e.getValue();
- *    if (l != null){
- *       l.stream().forEach(s->{
- *          logger.info(s);
- *       });
- *    }
- * });
- * または、
- * public void execute(Consumer&lt;OutputStream&gt; outconsumer, BiConsumer&lt;String, Map&lt;String, List&lt;String&gt;&gt;&gt; headconsumer, Consumer&lt;InputStream&gt; readconsumer)
  *
- * client.execute(ThrowableConsumer.of(out->{
+ * public void execute(Consumer&lt;OutputStream&gt; outconsumer, BiConsumer&lt;String, Map&lt;String, List&lt;String&gt;&gt;&gt; headconsumer, Consumer&lt;InputStream&gt; inconsumer)
+ *
+ * int status = client.execute(ThrowableConsumer.of(out->{
  *    OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
  *    writer.write("{\"name\":\"apple\",\"price\":150}");
  *    writer.flush();
@@ -83,6 +64,7 @@ public class HttpsClient{
 	private String proxy_user;
 	private String proxy_passwd;
 	private Integer proxy_port;
+	private Map<String, String> headerOptions;
 	private int httpresponsecode;
 	/**
 	 * コンストラクタ.
@@ -90,10 +72,11 @@ public class HttpsClient{
 	 * @param method HTTPメソッド
 	 * @param contentType contentType指定文字列
 	 */
-	protected HttpsClient(URL url, String method, String contentType){
+	protected HttpsClient(URL url, String method, String contentType, Map<String, String> headerOptions){
 		this.url = url;
 		this.method = method;
 		this.contentType = contentType;
+		this.headerOptions = headerOptions;
 	}
 	/**
 	 * コンストラクタ（Proxy指定）.
@@ -106,10 +89,11 @@ public class HttpsClient{
 	 * @param proxy_port Proxyポート番号
 	 * @param map パラメータMap 値は、URLエンコードされてなければならない。HttpsClientBuilder を使用することで送信するパラメータ値のエンコードは保証される。
 	 */
-	protected HttpsClient(URL url, String method, String contentType, String proxy_server, String proxy_user, String proxy_passwd, Integer proxy_port){
+	protected HttpsClient(URL url, String method, String contentType, Map<String, String> headerOptions, String proxy_server, String proxy_user, String proxy_passwd, Integer proxy_port){
 		this.url = url;
 		this.method = method;
 		this.contentType = contentType;
+		this.headerOptions = headerOptions;
 		this.proxy_server = proxy_server;
 		this.proxy_user = proxy_user;
 		this.proxy_passwd = proxy_passwd;
@@ -119,76 +103,11 @@ public class HttpsClient{
 	 * HTTPS要求送受信.
 	 * @param outconsumer 送信 OutputStream Consumer
 	 * @param consumer HTTPS通信結果、受け取ったHTTP ContentType、HTTPヘッダを読取り処理する BiConsumer
-	 * @return 要求した結果を受信したテキスト文字列。受信失敗は、null を返す。
-	 */
-	public String execute(Consumer<OutputStream> outconsumer, BiConsumer<String, Map<String, List<String>>> consumer){
-		String result = null;
-		try{
-			SSLContext ctx = SSLContext.getInstance("SSL");
-			ctx.init(null, new X509TrustManager[]{ new NonAuthentication() }, null);
-			SSLSocketFactory factory = ctx.getSocketFactory();
-
-			HttpsURLConnection uc;
-			if (proxy_server != null){
-				// Proxy利用
-				if (proxy_user != null && proxy_passwd != null){
-					Authenticator.setDefault(new Authenticator(){
-						@Override
-						protected PasswordAuthentication getPasswordAuthentication() {
-							return new PasswordAuthentication(proxy_user, proxy_passwd.toCharArray());
-						}
-					});
-				}
-				Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxy_server, Optional.ofNullable(proxy_port).orElse(80)));
-				uc = (HttpsURLConnection)url.openConnection(proxy);
-			}else{
-				uc = (HttpsURLConnection)url.openConnection();
-			}
-			uc.setSSLSocketFactory(factory);
-			/* HTTPリクエストヘッダの設定 */
-			uc.setDoOutput(true);              // こちらからのデータ送信を可能とする
-			uc.setReadTimeout(0);              // 読み取りタイムアウト値をミリ秒単位で設定(0は無限)
-			uc.setRequestMethod(method);       // URL 要求のメソッドを設定
-			if (contentType != null) uc.setRequestProperty("Content-Type", contentType);
-			// コネクション確立→送信
-			uc.connect();
-
-			try(OutputStream out = uc.getOutputStream()){
-				outconsumer.accept(out);
-				out.flush();
-			}
-
-			httpresponsecode = uc.getResponseCode();
-			if (httpresponsecode != 200){
-				return null;
-			}
-			// 戻り値取得
-			consumer.accept(uc.getContentType(), uc.getHeaderFields());
-			// 応答読込
-			try(BufferedReader in = new BufferedReader(new InputStreamReader(uc.getInputStream(), StandardCharsets.UTF_8))){
-				StringBuilder sout = new StringBuilder();
-				char[] buf = new char[1024];
-				int n;
-				while((n = in.read(buf)) >= 0){
-					sout.append(buf, 0, n);
-				}
-				result = sout.toString();
-			}catch(IOException e){
-				throw new RuntimeException(e);
-			}
-		}catch(Exception e){
-		   throw new RuntimeException(e);
-		}
-		return result;
-	}
-
-	/**
-	 * Stream受信（HTTPS要求→ダウンロード）.
-	 * @param outconsumer 送信 OutputStream Consumer
 	 * @param headconsumer HTTPS通信結果、受け取ったHTTP ContentType、HTTPヘッダを読取り処理する BiConsumer
 	 * @param readconsumer 要求した結果の受け取り InputStream を指定する Consumer
 	 */
-	public void execute(Consumer<OutputStream> outconsumer, BiConsumer<String, Map<String, List<String>>> headconsumer, Consumer<InputStream> readconsumer){
+	public int execute(Consumer<OutputStream> outconsumer, BiConsumer<String, Map<String, List<String>>> headconsumer, Consumer<InputStream> inconsumer){
+		int status;
 		try{
 			SSLContext ctx = SSLContext.getInstance("SSL");
 			ctx.init(null, new X509TrustManager[]{ new NonAuthentication() }, null);
@@ -217,6 +136,11 @@ public class HttpsClient{
 			uc.setReadTimeout(0);              // 読み取りタイムアウト値をミリ秒単位で設定(0は無限)
 			uc.setRequestMethod(method);       // URL 要求のメソッドを設定
 			if (contentType != null) uc.setRequestProperty("Content-Type", contentType);
+			if (headerOptions.size() > 0) {
+				headerOptions.entrySet().stream().forEach(e->{
+					uc.setRequestProperty(e.getKey(), e.getValue());
+				});
+			}
 			// コネクション確立→送信
 			uc.connect();
 
@@ -225,17 +149,18 @@ public class HttpsClient{
 				out.flush();
 			}
 
-			httpresponsecode = uc.getResponseCode();
+			status = uc.getResponseCode();
 			if (httpresponsecode != 200){
 				throw new RuntimeException("HTTP response " + httpresponsecode);
 			}
 			// 戻り値取得
 			headconsumer.accept(uc.getContentType(), uc.getHeaderFields());
 			// 応答読込
-			readconsumer.accept(uc.getInputStream());
+			inconsumer.accept(uc.getInputStream());
 		}catch(Exception e){
 		   throw new RuntimeException(e);
 		}
+		return status;
 	}
 
 	/**

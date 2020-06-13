@@ -26,6 +26,7 @@ import org.yipuran.xml.AbstractXmlHandler;
  * </pre>
  * @author dvctcyamada
  */
+@Deprecated
 public final class HttpUtil{
 	/** HTTPヘッダ属性名 "Content-Type" */
 	public final static String KEY_CONTENT_TYPE = "Content-Type";    // text/xml
@@ -52,6 +53,7 @@ public final class HttpUtil{
 	 * @return 応答レスポンス HttpUtilzResponseを参照してください
 	 * @throws Exception
 	 */
+	@Deprecated
 	public static HttpUtilResponse send(URL url,Map<String,String> headerMap, String method,String str,int timeout,String encode) throws Exception {
 	   return send(url,headerMap,null,null,method,str,timeout,encode);
 	}
@@ -69,6 +71,7 @@ public final class HttpUtil{
 	 * @return 応答レスポンス HttpUtilzResponseを参照してください
 	 * @throws Exception
 	 */
+	@Deprecated
 	public static HttpUtilResponse send(URL url,String str,int timeout) throws Exception{
 		Map<String,String> map = new HashMap<String,String>();
 		map.put(KEY_CONTENT_TYPE,"text/xml");
@@ -83,6 +86,7 @@ public final class HttpUtil{
 	 * @return 応答レスポンス HttpUtilzResponseを参照してください
 	 * @throws Exception
 	 */
+	@Deprecated
 	public static HttpUtilResponse send(URL url,String str) throws Exception{
 		return send(url,str,30000);
 	}
@@ -101,6 +105,7 @@ public final class HttpUtil{
 	 * @return 応答レスポンス HttpUtilzResponseを参照してください
 	 * @throws Exception
 	 */
+	@Deprecated
 	public static HttpUtilResponse send(URL url,Map<String,String> headerMap,String user,String passwd,String method,String str,int timeout,String encode) throws Exception{
 		HttpURLConnection uc = null;
 		OutputStreamWriter osw = null;
@@ -200,6 +205,7 @@ public final class HttpUtil{
 	 * @return 応答レスポンス HttpUtilzResponseを参照してください
 	 * @throws Exception
 	 */
+	@Deprecated
 	public static HttpUtilResponse send(URL url,String user,String passwd,String str,int timeout) throws Exception{
 		Map<String,String> map = new HashMap<String,String>();
 		map.put(KEY_CONTENT_TYPE,"text/xml");
@@ -217,6 +223,7 @@ public final class HttpUtil{
 	 * @return 応答レスポンス HttpUtilzResponseを参照してください
 	 * @throws Exception
 	 */
+	@Deprecated
 	public static HttpUtilResponse send(URL url,String user,String passwd,String str) throws Exception{
 		return send(url,user,passwd,str,30000);
 	}
@@ -232,6 +239,7 @@ public final class HttpUtil{
 	 * @return 応答レスポンス HttpUtilzResponseを参照してください
 	 * @throws Exception
 	 */
+	@Deprecated
 	public static HttpUtilResponse send(URL url,String user,String passwd, String method, String str) throws Exception{
 		Map<String,String> map = new HashMap<String,String>();
 		map.put(KEY_CONTENT_TYPE, "text/plain");
@@ -252,6 +260,7 @@ public final class HttpUtil{
 	 * @return 応答レスポンス HttpUtilzResponseを参照してください、メッセージは、ハンドラの result() で取得します。
 	 * @throws Exception
 	 */
+	@Deprecated
 	public static HttpUtilResponse send(URL url,Map<String,String> headerMap, String method,String str,int timeout,String encode,AbstractXmlHandler handler) throws Exception {
 		return send(url,headerMap,null,null,method,str,timeout,encode,handler);
 	}
@@ -271,6 +280,7 @@ public final class HttpUtil{
 	 * @return 応答レスポンス HttpUtilzResponseを参照してください メッセージは、ハンドラの result() で取得します。
 	 * @throws Exception
 	 */
+	@Deprecated
 	public static HttpUtilResponse send(URL url,Map<String,String> headerMap,String user,String passwd,String method,String str,int timeout,String encode,AbstractXmlHandler handler) throws Exception{
 		HttpURLConnection uc = null;
 		OutputStreamWriter osw = null;
