@@ -1,10 +1,9 @@
 package org.yipuran.function;
 
 import java.io.Serializable;
+import java.util.AbstractMap;
 import java.util.Objects;
 import java.util.function.BiConsumer;
-
-import org.yipuran.util.SimplePair;
 
 /**
  * Exception 捕捉 BiConsumer.
@@ -20,7 +19,7 @@ import org.yipuran.util.SimplePair;
  * , (p, x)->{
  *     // 例外捕捉処理、 x は Exception
  * });
- *	  p は、t と u の SimplePair&lt;T, U&gt;
+ *	  p は、t と u の AbstractMap.SimpleEntry&lt;T, U&gt;
  * </PRE>
  */
 @FunctionalInterface
@@ -28,13 +27,13 @@ public interface ThrowableBiConsumer<T, U> extends Serializable{
 
 	void accept(T t, U u) throws Exception;
 
-	default BiConsumer<T, U> andThen(BiConsumer<? super T, ? super U> after, BiConsumer<SimplePair<T, U>, Exception> onCatch){
+	default BiConsumer<T, U> andThen(BiConsumer<? super T, ? super U> after, BiConsumer<AbstractMap.SimpleEntry<T, U>, Exception> onCatch){
 		Objects.requireNonNull(after);
 		return (t, u) -> {
 			try{
 				accept(t, u);
 			}catch(Exception e){
-				onCatch.accept(new SimplePair<>(t, u), e);
+				onCatch.accept(new AbstractMap.SimpleEntry<>(t, u), e);
 			}
 			after.accept(t, u);
 		};
@@ -42,15 +41,15 @@ public interface ThrowableBiConsumer<T, U> extends Serializable{
 	/**
 	 * ThrowableBiConsumer 生成.
 	 * @param consumer 例外スローする BiConsumer&lt;T, U&gt;処理
-	 * @param onCatch Exception捕捉処理、BiConsumer&lt;SimplePair&lt;T, U&gt;, Exception&gt;、
+	 * @param onCatch Exception捕捉処理、BiConsumer&lt;AbstractMap.SimpleEntry&lt;T, U&gt;, Exception&gt;、
 	 * @return BiConsumer&lt;T, U&gt;
 	 */
-	public static <T, U> BiConsumer<T, U> of(ThrowableBiConsumer<T, U> consumer, BiConsumer<SimplePair<T, U>, Exception> onCatch){
+	public static <T, U> BiConsumer<T, U> of(ThrowableBiConsumer<T, U> consumer, BiConsumer<AbstractMap.SimpleEntry<T, U>, Exception> onCatch){
 		return (t, u)->{
 			try{
 				consumer.accept(t, u);
 			}catch(Exception ex){
-				onCatch.accept(new SimplePair<T, U>(t, u), ex);
+				onCatch.accept(new AbstractMap.SimpleEntry<T, U>(t, u), ex);
 			}
 		};
 	}

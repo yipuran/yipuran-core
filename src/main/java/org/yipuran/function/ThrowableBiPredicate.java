@@ -1,11 +1,10 @@
 package org.yipuran.function;
 
 import java.io.Serializable;
+import java.util.AbstractMap;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
-
-import org.yipuran.util.SimplePair;
 
 /**
  * Exception 捕捉 BiPredicate.
@@ -21,7 +20,7 @@ import org.yipuran.util.SimplePair;
  * , (p, x)->{
  *     // 例外捕捉処理、 x は Exception
  * }).forEach(e->{});
- *     p は、t と u の SimplePair&lt;T, U&gt;
+ *     p は、t と u の AbstractMap.SimpleEntry&lt;T, U&gt;
  * </PRE>
  *
  */
@@ -96,12 +95,12 @@ public interface ThrowableBiPredicate<T, U> extends Serializable{
 	 * @param onCatch Exception捕捉処理 , boolean値を返さなければならない。
 	 * @return Predicate&lt;T&gt;
 	 */
-	public static <T, U> BiPredicate<T, U> of(ThrowableBiPredicate<T, U> p, BiFunction<SimplePair<T, U>, Exception, Boolean> onCatch){
+	public static <T, U> BiPredicate<T, U> of(ThrowableBiPredicate<T, U> p, BiFunction<AbstractMap.SimpleEntry<T, U>, Exception, Boolean> onCatch){
 		return (t, u)->{
 			try{
 				return p.test(t, u);
 			}catch(Exception e){
-				return onCatch.apply(new SimplePair<>(t, u), e);
+				return onCatch.apply(new AbstractMap.SimpleEntry<>(t, u), e);
 			}
 		};
 	}

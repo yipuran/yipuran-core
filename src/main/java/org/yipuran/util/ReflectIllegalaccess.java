@@ -6,7 +6,6 @@ import sun.misc.Unsafe;
 /**
  * Java9 以降の Field reflection の警告を黙らせる.
  */
-@SuppressWarnings("restriction")
 public final class ReflectIllegalaccess{
 	/** private constructor. */
 	private ReflectIllegalaccess(){}
