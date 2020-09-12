@@ -32,7 +32,7 @@ Throwable なラムダ、GenericBuilder　など広範囲ではある。各機�
 ## Setup gradle
 ```
 repositories {
-    mavebCentral()
+    mavenCentral()
     maven { url 'https://raw.github.com/yipuran/yipuran-core/mvn-repo'  }
 }
 
