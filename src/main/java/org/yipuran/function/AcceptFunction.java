@@ -2,8 +2,8 @@ package org.yipuran.function;
 
 import java.io.Serializable;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-import com.google.common.base.Supplier;
 
 /**
  * 複合Function生成.
