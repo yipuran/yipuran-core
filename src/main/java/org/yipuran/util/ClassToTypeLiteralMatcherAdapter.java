@@ -13,6 +13,7 @@ import com.google.inject.matcher.Matcher;
  * bindListener(new ClassToTypeLiteralMatcherAdapter(Matchers.subclassesOf(Foo.class)), typeListener);
  * </PRE>
  */
+@SuppressWarnings("rawtypes")
 public class ClassToTypeLiteralMatcherAdapter extends AbstractMatcher<TypeLiteral>{
 	private final Matcher<Class> classMatcher;
 

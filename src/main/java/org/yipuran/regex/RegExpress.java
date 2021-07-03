@@ -17,7 +17,7 @@ import java.util.stream.StreamSupport;
 
 /**
  * 正規表現ユーティリティ.
- * @since 4.7
+ * @since 4.27
  */
 public final class RegExpress{
 	private RegExpress(){

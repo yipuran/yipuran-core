@@ -353,7 +353,7 @@ public final class SJutil{
 	 * Unicode文字列に変換する("あ" → "\u3042")
 	 * @param string 変換対象文字列 nullを指定すると、空文字が返る。
 	 * @return 変換結果 Unicode文字列
-	 * @since Ver 4.6
+	 * @since Ver 4.16
 	 */
 	public static String toUnicode(String string){
 		if (string==null || string.isEmpty()) return "";
@@ -369,7 +369,7 @@ public final class SJutil{
 	 * Unicode文字列から元の文字列に変換する ("\u3042" → "あ")
 	 * @param unicode Unicode文字列
 	 * @return 変換結果 UTF-8 文字列
-	 * @since Ver 4.6
+	 * @since Ver 4.16
 	 */
 	public static String fromUnicode(String unicode){
 		if (unicode==null || unicode.isEmpty()) return "";

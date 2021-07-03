@@ -25,7 +25,7 @@ import org.yipuran.function.ThrowableSupplier;
  * 文字列の変換、文字列を対象にした static メソッドを提供するが、
  * Camel case → Snake case は、単純に "_" を挿入するだけであり大文字小文字は調整しない。
  * </PRE>
- * @since 4.8
+ * @since 4.27
  */
 public interface SnakeCamel{
 	/**

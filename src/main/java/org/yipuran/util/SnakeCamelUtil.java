@@ -10,7 +10,7 @@ import org.yipuran.function.ThrowableSupplier;
 
 /**
  * Snake case ⇔ Camel case 変換ユーティリティ.
- * @since 4.8
+ * @since 4.27
  */
 public final class SnakeCamelUtil{
 	private SnakeCamelUtil(){}

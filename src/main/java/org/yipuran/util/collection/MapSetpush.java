@@ -38,7 +38,7 @@ public interface MapSetpush<K, V> extends Serializable{
 		};
 	}
 
-	public static <K, V> MapSetpush<K, V> of(Map<K, Set<V>> m, Supplier<Set> newsupplier){
+	public static <K, V> MapSetpush<K, V> of(Map<K, Set<V>> m, Supplier<Set<V>> newsupplier){
 		return (k, v)->{
 			m.put(k, Optional.ofNullable(m.get(k))
 						.map(e->setAddReturn(v).apply(e))

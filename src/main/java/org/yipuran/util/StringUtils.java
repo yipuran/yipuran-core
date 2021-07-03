@@ -23,7 +23,7 @@ public final class StringUtils{
 	 * @param in InputStream
 	 * @return String
 	 * @throws IOException
-	 * @since 4.3
+	 * @since 4.23
 	 */
 	public static String toString(InputStream in) throws IOException{
 		StringBuilder sb = new StringBuilder();
@@ -44,7 +44,7 @@ public final class StringUtils{
 	 * @param charset 文字コード名
 	 * @return String
 	 * @throws IOException
-	 * @since 4.3
+	 * @since 4.23
 	 */
 	public static String toString(InputStream in, String charset) throws IOException{
 		StringBuilder sb = new StringBuilder();
@@ -60,7 +60,7 @@ public final class StringUtils{
 	 * String → Byte InputStream
 	 * @param str 読込み対象文字列
 	 * @return InputStream
-	 * @since 4.3
+	 * @since 4.23
 	 */
 	public static InputStream toByteStream(String str){
 		return new ByteArrayInputStream(str.getBytes());

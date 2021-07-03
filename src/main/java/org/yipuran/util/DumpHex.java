@@ -22,7 +22,7 @@ import java.util.stream.StreamSupport;
  *      }):
  *
  * </PRE>
- * @since 4.3
+ * @since 4.23
  */
 public final class DumpHex{
 	private String str;

@@ -102,7 +102,7 @@ public final class DateUtil{
 	 * エポックミリ秒→LocalDateTime
 	 * @param epocmili エポックミリ秒
 	 * @return LocalDateTime
-	 * @since 4.8
+	 * @since 4.28
 	 */
 	public static LocalDateTime epocToLocalDatetime(long epocmili) {
 		return Instant.ofEpochMilli(epocmili).atZone(ZoneId.systemDefault()).toLocalDateTime();

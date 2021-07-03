@@ -16,7 +16,7 @@ import java.util.Comparator;
  *
  * </pre>
  */
-public interface ComparePredicate<E> extends Comparator{
+public interface ComparePredicate<E> extends Comparator<E>{
    /**
     * 対象コレクションへの追加の許可
     * @param e 追加する要素、または、TreeMap の場合は、Key

@@ -126,7 +126,6 @@ public final class LimitCollections{
     */
    public static <E> Set<E> createTreeSet(final ComparePredicate<E> predicate){
      return new TreeSet<E>(new Comparator<E>(){
-            @SuppressWarnings("unchecked")
             @Override
             public int compare(E e1,E e2){
                if (!predicate.apply(e1)) return 0;
@@ -147,7 +146,7 @@ public final class LimitCollections{
             @Override
             public int compare(K k1,K k2){
                if (!predicate.apply(k1)) return 0;
-               return ((Comparable)k1).compareTo(k2);
+               return ((Comparable<K>)k1).compareTo(k2);
             }
          }
       );
@@ -159,7 +158,6 @@ public final class LimitCollections{
     */
    public static <K,V> Map<K,V> createTreeMap(final ComparePredicate<K> predicate){
       return new TreeMap<K,V>(new Comparator<K>(){
-            @SuppressWarnings("unchecked")
             @Override
             public int compare(K k1,K k2){
                if (!predicate.apply(k1)) return 0;

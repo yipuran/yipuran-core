@@ -28,7 +28,7 @@ import org.yipuran.util.Fieldgetter;
  *   List<Foo> list = list.stream().sorted(DyComparator.of().reversed("width", "height","depth")).collect(Collectors.toList());
  *
  * </PRE>
- * @since 4.8
+ * @since 4.18
  */
 public final class DyComparator<T>{
 	/**

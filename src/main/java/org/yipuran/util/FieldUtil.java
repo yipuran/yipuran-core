@@ -2,11 +2,14 @@ package org.yipuran.util;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import org.yipuran.function.ThrowableBiConsumer;
 import org.yipuran.function.ThrowableSupplier;
@@ -25,13 +28,25 @@ public final class FieldUtil{
 	 * @param sup コピー先を返す Supplier
 	 * @return 引数Supplierに、コピー後のインスタンス
 	 */
-	public static <R, T> R copy(T t, Supplier<R> s){
-		GenericBuilder<R> builder = Arrays.stream(t.getClass().getDeclaredFields())
-		.collect(ThrowableSupplier.to(()->GenericBuilder.of(s)), ThrowableBiConsumer.of((r, f)->{
-			f.setAccessible(true);
-			r.with(Fieldsetter.of((p, u)->f.getName()), f.get(t));
-		}), (r, u)->{});
-		return builder.build();
+	public static <R, T> R copy(T t, Supplier<R> supplier){
+		UnaryOperator<Class<?>> superFind = c->c.getSuperclass();
+		UnaryOperator<String> topUpper = s->s.substring(0, 1).toUpperCase() + s.substring(1);
+		Class<?> c = t.getClass();
+		R r = supplier.get();
+		try{
+			do{
+				for(Field f : c.getDeclaredFields()){
+					String n = f.getName();
+					String name = topUpper.apply(n);
+					Method getter = c.getDeclaredMethod((c.getDeclaredField(n).getType().equals(boolean.class) ? "is" : "get") + name);
+					Method setter = r.getClass().getDeclaredMethod("set"+ name, getter.getReturnType());
+					setter.invoke(r, getter.invoke(t));
+				}
+			}while(!(c=superFind.apply(c)).equals(Object.class));
+		}catch(SecurityException | NoSuchFieldException | NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e){
+			throw new RuntimeException(e);
+		}
+		return r;
 	}
 	/**
 	 * コピー（寛大）.
@@ -40,21 +55,28 @@ public final class FieldUtil{
 	 * @param sup コピー先を返す Supplier
 	 * @return 引数Supplierに、コピー後のインスタンス
 	 */
-	public static <R, T> R copylenient(T t, Supplier<R> s){
-		GenericBuilder<R> builder = Arrays.stream(t.getClass().getDeclaredFields())
-		.collect(ThrowableSupplier.to(()->GenericBuilder.of(s)), ThrowableBiConsumer.of((g, f)->{
-			f.setAccessible(true);
-			g.with((v, u)->{
-				try{
-					Field d = v.getClass().getField(f.getName());
-					d.setAccessible(true);
-					d.set(v, u);
-				}catch(Throwable x){
+	public static <T, R> R copylenient(T t, Supplier<R> supplier){
+		UnaryOperator<Class<?>> superFind = c->c.getSuperclass();
+		UnaryOperator<String> topUpper = s->s.substring(0, 1).toUpperCase() + s.substring(1);
+		Class<?> c = t.getClass();
+		R r = supplier.get();
+		try{
+			do{
+				for(Field f : c.getDeclaredFields()){
+					String n = f.getName();
+					String name = topUpper.apply(n);
+					Method getter = c.getDeclaredMethod((c.getDeclaredField(n).getType().equals(boolean.class) ? "is" : "get") + name);
+					try{
+						Method setter = r.getClass().getDeclaredMethod("set"+ name, getter.getReturnType());
+						setter.invoke(r, getter.invoke(t));
+					}catch(NoSuchMethodException e){
+					}
 				}
-			}, f.get(t));
-		}, (a, b)->{})
-		,(v, u)->{});
-		return builder.build();
+			}while(!(c=superFind.apply(c)).equals(Object.class));
+		}catch(SecurityException | NoSuchFieldException | NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e){
+			throw new RuntimeException(e);
+		}
+		return r;
 	}
 	/**
 	 * Fieldコピー（除外フィールド指定）.

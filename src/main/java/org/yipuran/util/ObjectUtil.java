@@ -1,6 +1,9 @@
 package org.yipuran.util;
 
 import java.lang.reflect.Method;
+import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
+import java.util.stream.Stream.Builder;
 
 /**
  * ObjectUtil
@@ -111,5 +114,22 @@ public final class ObjectUtil{
 		}catch(NoSuchMethodException | SecurityException e){
 			throw new RuntimeException(e);
 		}
+	}
+	/**
+	 * 親クラス探索Stream.
+	 * 自クラスを含めて親クラスまで（Object.classの前まで）のStreamを返す
+	 * @param cls 起点クラス
+	 * @return 自クラスを含めて親クラスまでのStream
+	 * @since 4.29
+	 */
+	public static Stream<Class<?>> superStream(Class<?> cls){
+		UnaryOperator<Class<?>> superFind = c->c.getSuperclass();
+		Builder<Class<?>> builder = Stream.builder();
+		builder.add(cls);
+		Class<?> c = cls;
+		while(!(c=superFind.apply(c)).equals(Object.class)) {
+			builder.add(c);
+		}
+		return builder.build();
 	}
 }
