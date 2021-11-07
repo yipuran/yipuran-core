@@ -22,11 +22,7 @@ Throwable なラムダ、GenericBuilder　など広範囲ではある。各機�
     <dependency>
         <groupId>org.yipuran.core</groupId>
         <artifactId>yipuran-core</artifactId>
-<<<<<<< HEAD
-        <version>4.29</version>
-=======
         <version>4.30</version>
->>>>>>> c49c41e0b15f3c0054a1c38d5cca7475e834d12b
     </dependency>
 </dependencies>
 
@@ -41,10 +37,6 @@ repositories {
 }
 
 dependencied {
-<<<<<<< HEAD
-    compile 'org.yipuran.core:yipuran-core:4.29'
-=======
     compile 'org.yipuran.core:yipuran-core:4.30'
->>>>>>> c49c41e0b15f3c0054a1c38d5cca7475e834d12b
 }
 ```
