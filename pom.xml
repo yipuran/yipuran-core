@@ -2,7 +2,7 @@
 <modelVersion>4.0.0</modelVersion>
 <groupId>org.yipuran.core</groupId>
 <artifactId>yipuran-core</artifactId>
-<version>4.29</version>
+<version>4.30</version>
 
 <name>yipuran-core</name>
 <url>https://github.com/yipuran/yipuran-core</url>
@@ -11,7 +11,7 @@
 <properties>
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	<github.global.server>github</github.global.server>
-	<guice.version>4.2.2</guice.version>
+	<guice.version>5.0.1</guice.version>
 </properties>
 
 <distributionManagement>
@@ -46,7 +46,7 @@
 	<dependency>
 		<groupId>com.google.inject.extensions</groupId>
 		<artifactId>guice-multibindings</artifactId>
-		<version>${guice.version}</version>
+		<version>4.2.3</version>
 	</dependency>
 	<dependency>
 		<groupId>com.google.inject.extensions</groupId>

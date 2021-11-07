@@ -1,5 +1,11 @@
 package org.yipuran.util.process;
 
+import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 /**
  * プロセス起動インターフェース.
  * <pre>
@@ -35,4 +41,33 @@ public interface ProcessExecutor{
     * @return プロセス完了後の標準エラー出力
     */
    public String getStderr();
+
+   /**
+    * Python実行エラートレースダンプ Stream変換.
+    * <PRE>
+    * ScriptExecutor の runメソッド、runStreamメソッドのエラー捕捉処理の BiConsumer＜String, Throwable＞から
+    * String ＝ Python実行スクリプトの標準エラー出力文字列が、Python のトレースダンプである時、
+    * 本メソッドでトレースダンプ１ステップずつの Stream に変換することができる。
+    * </PRE>
+    * @param error Pythonスクリプト標準エラー出力結果
+    * @return Stream
+    * @since 4.30
+    */
+   public static Stream<String> pythonErrorTrace(String error) {
+		String estr = error.replaceAll("\r", "").replaceAll("\n", "");
+		estr = estr.substring(2, estr.length()-2);
+		String[] ary = estr.split("', '");
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new Iterator<String>(){
+			int x = -1;
+			@Override
+			public boolean hasNext(){
+				return x < ary.length-1;
+			}
+			@Override
+			public String next(){
+				x++;
+				return ary[x].replaceFirst("\\\\n$", "");
+			}
+		}, Spliterator.ORDERED), false);
+	}
 }

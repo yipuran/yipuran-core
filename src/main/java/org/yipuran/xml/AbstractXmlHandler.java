@@ -25,7 +25,6 @@ public abstract class AbstractXmlHandler<T> extends DefaultHandler{
 	 * @param handler AbstractXmlHandler継承インスタンス
 	 * @return XmlParserインスタンス
 	 */
-	@SuppressWarnings("unchecked")
 	public static final <T> XmlParser<T> createParser(String baseName, AbstractXmlHandler<T> handler){
 		return new XmlParserImpl<T>(baseName, handler);
 	}
@@ -45,7 +44,6 @@ public abstract class AbstractXmlHandler<T> extends DefaultHandler{
 	 * @param cacheTime ResourceBundle.Control の下でロードされたリソースバンドルの有効期間 (TTL) 値、ミリ秒
 	 * @return XmlParserインスタンス
 	 */
-	@SuppressWarnings("unchecked")
    public static final <T> XmlParser<T> createParser(String baseName, AbstractXmlHandler<T> handler, long cacheTime){
 		return new XmlParserImpl<T>(baseName, handler, cacheTime);
 	}
@@ -57,7 +55,6 @@ public abstract class AbstractXmlHandler<T> extends DefaultHandler{
 	 * @param handler AbstractXmlHandler継承インスタンス
 	 * @return XmlParserインスタンス
 	 */
-	@SuppressWarnings("unchecked")
 	public static final <T> XmlParser<T> createParser(Class<?> cls, String filename, AbstractXmlHandler<T> handler){
 		return new XmlParserImpl<T>(cls.getPackage().getName().replaceAll("\\.", "/") + "/" + filename.replaceAll("\\.xml$", ""), handler);
 	}

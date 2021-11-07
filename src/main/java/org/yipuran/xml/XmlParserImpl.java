@@ -17,7 +17,7 @@ import javax.xml.parsers.SAXParserFactory;
  * 解析対象 XMLファイル baseName と、AbstractXmlHandler インスタンスをコンストラクタで受け取る。
  * @param <T> XML解析結果オブジェクトGeneric
  */
-final class XmlParserImpl<T> implements XmlParser{
+final class XmlParserImpl<T> implements XmlParser<T>{
 	private String baseName;
 	AbstractXmlHandler<T> handler;
 	long cacheTime;
@@ -48,7 +48,7 @@ final class XmlParserImpl<T> implements XmlParser{
 	 * @see XmlParser#parse()
 	 */
 	@Override
-	public Object parse(){
+	public T parse(){
 		ResourceBundle.getBundle(this.baseName	, new ResourceBundle.Control(){
 			@Override
 			public List<String> getFormats(String base_Name){

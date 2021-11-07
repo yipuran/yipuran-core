@@ -43,7 +43,7 @@ public class NestedListComparator{
 	 * @param name 比較要素属性名
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <T> Comparator<List<T>> build(String name){
 		AtomicReference<Comparator<List<T>>> cp = new AtomicReference<>(Comparator.comparing(t->(Comparable)Fieldgetter.of(e->name).apply(t.get(0))));
 		IntStream.range(1, size).boxed().forEach(i->{
@@ -57,7 +57,7 @@ public class NestedListComparator{
 	 * @param reverse true=降順、false=昇順
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <T> Comparator<List<T>> build(String name, boolean reverse){
 		AtomicReference<Comparator<List<T>>> cp = new AtomicReference<>(Comparator.comparing(u->(Comparable)Fieldgetter.of(t->name).apply(u.get(0))));
 		IntStream.range(1, size).boxed().forEach(i->{

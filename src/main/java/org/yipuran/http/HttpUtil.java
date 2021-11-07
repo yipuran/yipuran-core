@@ -260,6 +260,7 @@ public final class HttpUtil{
 	 * @return 応答レスポンス HttpUtilzResponseを参照してください、メッセージは、ハンドラの result() で取得します。
 	 * @throws Exception
 	 */
+	@SuppressWarnings("rawtypes")
 	@Deprecated
 	public static HttpUtilResponse send(URL url,Map<String,String> headerMap, String method,String str,int timeout,String encode,AbstractXmlHandler handler) throws Exception {
 		return send(url,headerMap,null,null,method,str,timeout,encode,handler);
@@ -280,6 +281,7 @@ public final class HttpUtil{
 	 * @return 応答レスポンス HttpUtilzResponseを参照してください メッセージは、ハンドラの result() で取得します。
 	 * @throws Exception
 	 */
+	@SuppressWarnings("rawtypes")
 	@Deprecated
 	public static HttpUtilResponse send(URL url,Map<String,String> headerMap,String user,String passwd,String method,String str,int timeout,String encode,AbstractXmlHandler handler) throws Exception{
 		HttpURLConnection uc = null;

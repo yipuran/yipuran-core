@@ -97,6 +97,7 @@ public final class MethodMatcher {
 		};
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static Matcher onMethod(final Method method){
 		return new AbstractMatcher<Method>(){
 			@Override

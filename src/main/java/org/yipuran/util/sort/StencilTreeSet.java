@@ -7,9 +7,8 @@ import javax.inject.Inject;
 
 class StencilTreeSet<T> extends TreeSet<T>{
 	private static final long serialVersionUID = 1L;
-	@SuppressWarnings("unchecked")
 	@Inject
-	protected StencilTreeSet(Comparator c){
+	protected StencilTreeSet(Comparator<T> c){
 		super(c);
 	}
 }
