@@ -34,7 +34,7 @@ public interface ThrowableBiPredicate<T, U> extends Serializable{
 			try{
 				return test(t, u) && other.test(t, u);
 			}catch(Exception e){
-				return false;
+				throw new RuntimeException(e);
 			}
 		};
 	}
@@ -54,7 +54,7 @@ public interface ThrowableBiPredicate<T, U> extends Serializable{
 			try{
 				return !test(t, u);
 			}catch(Exception e){
-				return false;
+				throw new RuntimeException(e);
 			}
 		};
 	}
@@ -74,7 +74,7 @@ public interface ThrowableBiPredicate<T, U> extends Serializable{
 			try{
 				return test(t, u) || other.test(t, u);
 			}catch(Exception e){
-				return false;
+				throw new RuntimeException(e);
 			}
 		};
 	}

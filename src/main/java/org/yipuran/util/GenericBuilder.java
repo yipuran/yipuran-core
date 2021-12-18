@@ -53,7 +53,7 @@ public final class GenericBuilder<T>{
 	public T build(){
 		T value = instantiator.get();
 		instanceModifiers.forEach(modifier -> modifier.accept(value));
-		instanceModifiers.clear();
+		//instanceModifiers.clear();
 		return value;
 	}
 }

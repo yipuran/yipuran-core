@@ -16,7 +16,9 @@ import java.util.function.Predicate;
  * stream.filter(ThrowablePredicate.of(e->{
  *     // 通常の判定
  *     return true;
- * }, (e, x)->false);
+ * }, (e, x)->false))).forEach(e->{
+ *    // todo
+ * };
  *
  * </PRE>
  */
@@ -31,7 +33,7 @@ public interface ThrowablePredicate<T> extends Serializable{
 			try{
 				return test(t) && other.test(t);
 			}catch(Exception e){
-				return false;
+				throw new RuntimeException(e);
 			}
 		};
 	}
@@ -51,7 +53,7 @@ public interface ThrowablePredicate<T> extends Serializable{
 			try{
 				return !test(t);
 			}catch(Exception e){
-				return false;
+				throw new RuntimeException(e);
 			}
 		};
 	}
@@ -71,7 +73,7 @@ public interface ThrowablePredicate<T> extends Serializable{
 			try{
 				return test(t) || other.test(t);
 			}catch(Exception e){
-				return false;
+				throw new RuntimeException(e);
 			}
 		};
 	}
@@ -86,9 +88,6 @@ public interface ThrowablePredicate<T> extends Serializable{
 		};
 	}
 
-	static <T> Predicate<T> isEqual(Object targetRef){
-		return (null==targetRef)  ? Objects::isNull : object -> targetRef.equals(object);
-	}
 	/**
 	 * ThrowablePredicate 生成.
 	 * @param p 例外スローする Predicate&lt;T&gt;処理
