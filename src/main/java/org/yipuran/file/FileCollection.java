@@ -46,7 +46,7 @@ public final class FileCollection implements Serializable{
 	 * @param p 検査するPredicate&lt;File&gt;
 	 * @return List&lt;File&gt;
 	 */
-	public List<File> scan(Predicate<File> p){
+	public List<File> scanProvision(Predicate<File> p){
 		return parse(file, new ArrayList<>(), p);
 	}
 	/**

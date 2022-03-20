@@ -5,8 +5,15 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * StringUtils：String ユーティリティ.
@@ -65,15 +72,60 @@ public final class StringUtils{
 	public static InputStream toByteStream(String str){
 		return new ByteArrayInputStream(str.getBytes());
 	}
+
 	/**
-	 * Unicode文字列→文字列変換.
+	 * Brackets number 置換.
+	 * <pre>
+	 * String s = replaceBracketsNumber("{0} {1} {2} {0}", "a", 12, "b");
+	 * </pre>
+	 * @param template "{}" brackets 数字が存在する置換対象文字列
+	 * @param rep toString() を前提とした置換Object
+	 * @return 置換結果
+	 */
+	public static String replaceBracketsNumber(String template, Object...rep) {
+		Objects.requireNonNull(template);
+		String s = template;
+		Matcher m = Pattern.compile("\\{\\d+\\}").matcher(template);
+		while(m.find()){
+			int n = Integer.parseInt(m.group().substring(1, m.group().length()-1));
+			if (n < rep.length){
+				s = s.replace(m.group(), rep[n].toString());
+			}
+		}
+		return s;
+	}
+
+	/**
+	 * Unicodeを含む文字列→UTF-8文字列変換.
+	 * @param ustr Unicode文字列
+	 * @return UTF8文字列
+	 */
+	public static String unicodeToUtf8(String ustr){
+		if (ustr==null) return null;
+		AtomicInteger i = new AtomicInteger(0);
+		Matcher m = Pattern.compile("\\\\u[0-9a-fA-F]{4}").matcher(ustr);
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new Iterator<String>(){
+			@Override
+			public boolean hasNext(){
+				return m.find();
+			}
+			@Override
+			public String next(){
+				return ustr.substring(i.getAndSet(m.end()), m.start())
+						+ (char)(Integer.parseInt(m.group().substring(2), 16));
+			}
+		}, Spliterator.ORDERED), false).collect(Collectors.joining()) + ustr.substring(i.get());
+	}
+
+	/**
+	 * Unicode文字列only→文字列変換.
 	 * ("\u3042" -> "あ")
 	 * convertToOiginal("\\u2611") → ☑
 	 * convertToOiginal("\\u2610") → ☐
 	 * @param unicode Unicode文字列
 	 * @return UTF8文字列
 	 */
-	public static String unicodeToUtf8(String unicode){
+	public static String unicodeLimitToUtf8(String unicode){
 		String[] codeStrs = unicode.split("\\\\u");
 		int[] codePoints = new int[codeStrs.length - 1];
 		for (int i = 0; i < codePoints.length; i++){

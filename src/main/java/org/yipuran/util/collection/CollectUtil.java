@@ -4,7 +4,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
  * if (Arrays.asList("A", "B", "C").stream().collect(CollectUtil.unique())){
  *    // 重複なし
  * }
+ *
  *
  * </PRE>
  * @since 4.12
@@ -103,5 +106,41 @@ public final class CollectUtil{
 			if (!p.test(ary[i], ary[j])) return false;
 		}
 		return true;
+	}
+	/**
+	 * Listからカレント要素と前方要素の BiConsumer実行.
+	 * <pre>
+	 * リストを走査して BiConsumer＜T, T＞ カレントと前方を実行する。
+	 * 先頭は、前方が null で実行される。
+	 * </pre>
+	 * @param list 走査対象List
+	 * @param consumer BiConsumer １番目＝カレント要素、２番目＝前方の要素
+	 * @since 4.32
+	 */
+	public static <T> void eachPrevious(List<T> list, BiConsumer<T, T> consumer){
+		for(ListIterator<T> it = list.listIterator(); it.hasNext();) {
+			T pre = null;
+			if (it.hasPrevious()) {
+				pre = it.previous();
+				it.next();
+			}
+			consumer.accept(it.next(), pre);
+		}
+	}
+	/**
+	 * Listからカレント要素と前方要素の BiConsumer実行（先頭はConsumer）.
+	 * @param list 走査対象List
+	 * @param first 先頭だけ実行するConsumer
+	 * @param consumer BiConsumer １番目＝カレント要素、２番目＝前方の要素
+	 * @since 4.32
+	 */
+	public static <T> void eachPrevious(List<T> list, Consumer<T> first, BiConsumer<T, T> consumer){
+		ListIterator<T> it = list.listIterator();
+		first.accept(it.next());
+		while(it.hasNext()) {
+			T pre = it.previous();
+			it.next();
+			consumer.accept(it.next(), pre);
+		}
 	}
 }
