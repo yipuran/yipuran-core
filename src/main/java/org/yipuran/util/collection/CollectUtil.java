@@ -1,12 +1,16 @@
 package org.yipuran.util.collection;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -142,5 +146,25 @@ public final class CollectUtil{
 			it.next();
 			consumer.accept(it.next(), pre);
 		}
+	}
+	/**
+	 * Collection リレー Funtion 結果を求める。
+	 * <pre>
+	 * コレクションの用意で Funtion を返す。コレクション２番目以降は、前方のコレクション要素による結果と
+	 * 合わせた BiFuntion で結果を求める
+	 * </pre>
+	 * @param collections Funtion実行対象のリスト等のコレクション
+	 * @param first 先頭 Function
+	 * @param func 2番目以降のBiFunction、コレクション要素と前方のFunction または、BiFunctionの結果で、結果を返す。
+	 * @return Funtion実行結果、collectionsサイズ＝０は、null を返す。
+	 * @since 4.33
+	 */
+	public static <T, R> R relayFunction(Collection<T> collections, Function<T, R> first, BiFunction<T, R, R> func){
+		Iterator<T> it = collections.iterator();
+		R r = it.hasNext() ? first.apply(it.next()) : null;
+		while(it.hasNext()) {
+			r = func.apply(it.next(), r);
+		}
+		return r;
 	}
 }
