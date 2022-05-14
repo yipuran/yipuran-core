@@ -14,7 +14,6 @@ public final class ReflectIllegalaccess{
 	 * Java9 以降の Field reflection の警告を黙らせる.
 	 * Field access security Log jdk.internal.module.IllegalAccessLogger waring quiet.
 	 */
-	@SuppressWarnings("restriction")
 	public static void quiet(){
 		try{
 			Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");

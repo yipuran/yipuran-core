@@ -82,7 +82,6 @@ public final class Enviroment {
 	/**
 	 * WARNING: All illegal access operations  警告メッセージを抑制 for Java9
 	 */
-	@SuppressWarnings("restriction")
 	public static void ignoreJava9Warning(){
 		try{
 			Field theUnsafe = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
