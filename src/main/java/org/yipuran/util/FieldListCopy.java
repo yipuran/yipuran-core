@@ -33,11 +33,15 @@ public interface FieldListCopy<T>{
 		return u->{
 			try{
 				for(String fname:function.get(t)){
-					Field f;
-					try{
-						f = t.getClass().getField(fname);
-					}catch(NoSuchFieldException e){
-						f = t.getClass().getDeclaredField(fname);
+					Field f = null;
+					Class<?> cls = t.getClass();
+					while(cls != null){
+						try{
+							f = cls.getDeclaredField(fname);
+							break;
+						}catch(NoSuchFieldException e){
+							cls = cls.getSuperclass();
+						}
 					}
 					f.setAccessible(true);
 					f.set(u, f.get(t));
