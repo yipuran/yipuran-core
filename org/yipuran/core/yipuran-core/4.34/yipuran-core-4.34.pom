@@ -2,7 +2,7 @@
 <modelVersion>4.0.0</modelVersion>
 <groupId>org.yipuran.core</groupId>
 <artifactId>yipuran-core</artifactId>
-<version>4.32</version>
+<version>4.34</version>
 
 <name>yipuran-core</name>
 <url>https://github.com/yipuran/yipuran-core</url>
@@ -63,6 +63,11 @@
 		<artifactId>jsr305</artifactId>
 		<version>3.0.1</version>
 	</dependency>
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>[1.18.24,)</version>
+    </dependency>
     <dependency>
 		<groupId>org.junit</groupId>
 		<artifactId>junit</artifactId>
