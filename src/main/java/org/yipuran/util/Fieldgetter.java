@@ -43,11 +43,15 @@ public interface Fieldgetter<T, R> extends Serializable{
 		return t->{
 			try{
 				String fname = f.get(t);
-				Field field;
-				try{
-					field = t.getClass().getField(fname);
-				}catch(NoSuchFieldException e){
-					field = t.getClass().getDeclaredField(fname);
+				Field field = null;
+				Class<?> cls = t.getClass();
+				while(cls != null){
+					try{
+						field = cls.getDeclaredField(fname);
+						break;
+					}catch(NoSuchFieldException e){
+						cls = cls.getSuperclass();
+					}
 				}
 				field.setAccessible(true);
 				return (R)field.get(t);
