@@ -10,8 +10,8 @@ import org.yipuran.util.process.ScriptExecutor;
  */
 public class ProcessTest{
 	public static void main(String[] args){
-
-		int sts = ScriptExecutor.run(()->"python"
+		ScriptExecutor executor = new ScriptExecutor();
+		int sts = executor.run("python"
 		       , ()->Arrays.asList("print(\"Hello Python\")\n", "exit()\n"), t->{
 		      	 System.out.println("stdout : " + t );
 		       }, (t, e)->{
@@ -21,7 +21,7 @@ public class ProcessTest{
 		System.out.println("sts = " + sts);
 
 		System.out.println("-----------------------");
-		sts = ScriptExecutor.run(()->"cmd.exe /C python c:/work/hello.py", t->{
+		sts = executor.run("cmd.exe /C python c:/work/hello.py", t->{
 			System.out.println("stdout : " + t );
 		}, (t, e)->{
 			System.out.println("stderr : " + t );

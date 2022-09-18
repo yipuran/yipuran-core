@@ -6,6 +6,9 @@ import java.util.Map;
 
 /**
  * 環境変数をセットするユーティリティ.
+ *
+ * Enviroment.ignoreJava9Warning(); を実行した後で、Enviroment.serEnv(String key, String value)
+ * Enviroment.setEnv(Map<String, String> envmap); を実行すべき。
  */
 public final class Enviroment {
 	private Enviroment(){}
@@ -82,6 +85,7 @@ public final class Enviroment {
 	/**
 	 * WARNING: All illegal access operations  警告メッセージを抑制 for Java9
 	 */
+	@SuppressWarnings("restriction")
 	public static void ignoreJava9Warning(){
 		try{
 			Field theUnsafe = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");

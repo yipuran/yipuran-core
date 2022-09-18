@@ -20,7 +20,7 @@ Throwable なラムダ、GenericBuilder　など広範囲ではある。各機�
     <dependency>
         <groupId>org.yipuran.core</groupId>
         <artifactId>yipuran-core</artifactId>
-        <version>4.36</version>
+        <version>4.37</version>
     </dependency>
 </dependencies>
 
@@ -35,6 +35,6 @@ repositories {
 }
 
 dependencied {
-    compile 'org.yipuran.core:yipuran-core:4.36'
+    compile 'org.yipuran.core:yipuran-core:4.37'
 }
 ```
