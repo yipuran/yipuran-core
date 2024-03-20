@@ -33,7 +33,7 @@ public interface ThrowablePredicate<T> extends Serializable{
 			try{
 				return test(t) && other.test(t);
 			}catch(Exception e){
-				throw new RuntimeException(e);
+				throw new RuntimeException(e.getMessage(), e);
 			}
 		};
 	}
@@ -53,7 +53,7 @@ public interface ThrowablePredicate<T> extends Serializable{
 			try{
 				return !test(t);
 			}catch(Exception e){
-				throw new RuntimeException(e);
+				throw new RuntimeException(e.getMessage(), e);
 			}
 		};
 	}
@@ -73,7 +73,7 @@ public interface ThrowablePredicate<T> extends Serializable{
 			try{
 				return test(t) || other.test(t);
 			}catch(Exception e){
-				throw new RuntimeException(e);
+				throw new RuntimeException(e.getMessage(), e);
 			}
 		};
 	}
@@ -113,7 +113,7 @@ public interface ThrowablePredicate<T> extends Serializable{
 			try{
 				return p.test(t);
 			}catch(Throwable ex){
-				throw new RuntimeException(ex);
+				throw new RuntimeException(ex.getMessage(), ex);
 			}
 		};
 	}

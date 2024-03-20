@@ -78,7 +78,7 @@ public interface ThrowableFunction<T, R> extends Serializable{
 			try{
 				return function.apply(t);
 			}catch(Throwable ex){
-				throw new RuntimeException(ex);
+				throw new RuntimeException(ex.getMessage(), ex);
 			}
 		};
 	}

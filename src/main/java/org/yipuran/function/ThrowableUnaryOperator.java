@@ -51,7 +51,7 @@ public interface ThrowableUnaryOperator<T> extends Serializable{
 			try{
 				return u.apply(t);
 			}catch(Throwable ex){
-				throw new RuntimeException(ex);
+				throw new RuntimeException(ex.getMessage(), ex);
 			}
 		};
 	}

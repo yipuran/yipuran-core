@@ -64,7 +64,7 @@ public interface ThrowableBiFunction<T, U, R> extends Serializable{
 			try{
 				return function.apply(t, u);
 			}catch(Exception ex){
-				throw new RuntimeException(ex);
+				throw new RuntimeException(ex.getMessage(), ex);
 			}
 		};
 	}

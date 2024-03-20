@@ -52,7 +52,7 @@ public interface ThrowableSupplier<R> extends Serializable{
 			try{
 				return supplier.get();
 			}catch(Throwable ex){
-				throw new RuntimeException(ex);
+				throw new RuntimeException(ex.getMessage(), ex);
 			}
 		};
 	}

@@ -63,7 +63,7 @@ public interface ThrowableBiConsumer<T, U> extends Serializable{
 			try{
 				consumer.accept(t, u);
 			}catch(Throwable ex){
-				throw new RuntimeException(ex);
+				throw new RuntimeException(ex.getMessage(), ex);
 			}
 		};
 	}
