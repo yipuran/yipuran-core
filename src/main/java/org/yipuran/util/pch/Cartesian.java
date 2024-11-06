@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.function.Predicate;
 /**
  * デカルト積（直積）生成.
  * <PRE>
@@ -73,10 +75,10 @@ public class Cartesian<T> {
     }
 
     /**
-     * デカルト積リストのイテレータ生成
-     * @return List の Iterator
+     * デカルト積リストのIterable生成
+     * @return List の Iterable
      */
-    public Iterator<List<T>> iterator(){
+    public Iterable<List<T>> iterable(){
         int total = 1;
         int[] max = new int[lists.length];
         for(int i=0; i < lists.length; i++){
@@ -88,7 +90,7 @@ public class Cartesian<T> {
             total *= list.size();
         }
         int finalTotal = total;
-        return new Iterator<List<T>>() {
+        return () -> new Iterator<List<T>>() {
             int index = -1;
             int[] presentProduct;
             @Override
@@ -108,6 +110,39 @@ public class Cartesian<T> {
                     result.add(lists[i].get(presentProduct[i] - 1));
                 }
                 return result;
+            }
+        };
+    }
+
+    /**
+     * Predicate で抑制したデカルト積リストのIterable生成
+     * @param pred ListのPredicate を指定して生成するIterableを抑制する
+     * @return List の Iterable
+     */
+    public Iterable<List<T>> iterable(Predicate<List<T>> pred){
+        return () -> new Iterator<List<T>>() {
+            Iterator<List<T>> sourceIterator = iterable().iterator();
+            List<T> current;
+            boolean hasCurrent = false;
+            @Override
+            public boolean hasNext() {
+                while(!hasCurrent){
+                    if (!sourceIterator.hasNext()) {
+                        return false;
+                    }
+                    List<T> next = sourceIterator.next();
+                    if (pred.test(next)) {
+                        current = next;
+                        hasCurrent = true;
+                    }
+                }
+                return true;
+            }
+            @Override
+            public List<T> next() {
+                if(!hasNext()) throw new NoSuchElementException();
+                hasCurrent = false;
+                return current;
             }
         };
     }
