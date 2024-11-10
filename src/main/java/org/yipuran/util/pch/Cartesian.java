@@ -158,4 +158,15 @@ public class Cartesian<T> {
         }
         return curr;
     }
+    /**
+     * デカルト積結果総数
+     * @return
+     */
+    public int size() {
+    	int res = 1;
+    	for(List<T> l:lists) {
+    		res *= l.size();
+    	}
+    	return res;
+    }
 }

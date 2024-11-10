@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.StreamSupport;
 /**
  * 重複順列.
  * <PRE>
@@ -94,6 +95,30 @@ public class RepeatablePermutation<T>{
 	 */
 	public Iterator<List<T>> iterator(int len){
 		return this.compute(len).iterator();
+	}
+	/**
+	 * 重複あり組み合わせ順列結果List のIterableを返す
+	 * @param len 順列 nPr の r
+	 * @return Iterable<List<T>>
+	 */
+	public Iterable<List<T>> iterable(int len){
+		Iterator<List<T>> itr = compute(len).iterator();
+	    return new Iterable<List<T>>(){
+	        @Override
+	        public Iterator<List<T>> iterator() {
+	            return itr;
+	        }
+	    };
+	}
+	/**
+	 * Predicate で抑制した重複あり組み合わせ順列結果List のIterableを返す
+	 * @param len 順列 nPr の r
+	 * @param pred Predicate&lt;List&lt;T&gt;&gt;
+	 * @return Iterable<List<T>>
+	 */
+	public Iterable<List<T>> iterable(int len,  Predicate<List<T>> predicate) {
+	    return () -> StreamSupport.stream(compute(len).spliterator(), false)
+	        .filter(predicate).iterator();
 	}
 
 	private Predicate<List<T>> predicateList;

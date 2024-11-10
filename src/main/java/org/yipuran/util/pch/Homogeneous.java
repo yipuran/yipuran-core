@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -71,13 +72,103 @@ public class Homogeneous<T>{
 		}
 		return combinations;
 	}
+
+	/**
+	 * 重複あり組み合わせ総数を求める
+	 * @param len
+	 * @return
+	 */
+	public long size(int len) {
+		return nCr(list.size() + len - 1, len);
+	}
+	/**
+	 * 重複あり組み合わせ Iterable＜List＜T＞＞の生成
+	 * @param len nHr の r
+	 * @return 重複あり組み合わせ Iterable
+	 */
+	public Iterable<List<T>> iterable(int len){
+		long total = nCr(list.size() + len - 1, len);
+		int n = list.size();
+		int[] d = new int[n > len ? n+1 : len+1];
+		for(int i=1; i <= n; i++) d[i] = 1;
+		return () -> new Iterator<List<T>>(){
+			int index = -1;
+			@Override
+			public boolean hasNext(){
+				index++;
+				return index < total;
+			}
+			@Override
+			public List<T> next() {
+				List<T> result = Arrays.stream(d).boxed().filter(e->e > 0).map(e->list.get(e-1)).limit(len).collect(Collectors.toList());
+				for(int j=len; 0 <= j; j--){
+					d[j]++;
+					for(int k=j+1; k <= len; k++) {
+						d[k] = d[k-1];
+					}
+					if (d[j] <= n) break;
+				}
+ 				return result;
+ 			}
+		};
+	}
+	/**
+	 * Predicate で抑制した重複あり組み合わせ結果 Iterable＜List＜T＞＞の生成
+	 * @param len nHr の r
+	 * @param pred Predicate&lt;List&lt;T&gt;&gt;
+	 * @return Iterable&lt;List&lt;T&gt;&gt;
+	 */
+	public Iterable<List<T>> iterable(int r, Predicate<List<T>> pred){
+		return () -> new Iterator<List<T>>() {
+			Iterator<List<T>> sourceIterator = iterable(r).iterator();
+			List<T> current;
+			boolean hasCurrent = false;
+			@Override
+			public boolean hasNext() {
+				while(!hasCurrent){
+					if (!sourceIterator.hasNext()) {
+						return false;
+					}
+					List<T> next = sourceIterator.next();
+					if (pred.test(next)) {
+						current = next;
+						hasCurrent = true;
+					}
+				}
+				return true;
+			}
+			@Override
+			public List<T> next() {
+				if (!hasNext()) throw new NoSuchElementException();
+				hasCurrent = false;
+				return current;
+			}
+		};
+	}
+	private long nCr(int n, int r){
+		int rfact = 1, nfact = 1, nrfact = 1, temp1 = n - r, temp2 = r;
+		if (r > n - r){
+			temp1 = r;
+			temp2 = n - r;
+		}
+		for(int i = 1; i <= n; i++){
+			if (i <= temp2){
+				rfact *= i;
+				nrfact *= i;
+			}else if(i <= temp1){
+				nrfact *= i;
+			}
+			nfact *= i;
+		}
+		return (long)(nfact / (rfact * nrfact));
+	}
 	/**
 	 * Predicate指定結果Consumer実行
 	 * @param len 組み合わせ数 nHr の r
-	 * @param predivate 組み合わせ結果よりConsumer実行を判定 true=実行する
+	 * @param predicate 組み合わせ結果よりConsumer実行を判定 true=実行する
 	 * @param consumer
 	 */
-	public void matchExecute(int len, Predicate<List<T>> predivate, Consumer<List<T>> consumer){
+	public void matchExecute(int len, Predicate<List<T>> predicate, Consumer<List<T>> consumer){
 		int n = list.size();
 		int[] d = new int[n > len ? n+1 : len+1];
 		for(int i=1; i <= n; i++) d[i] = 1;
@@ -85,7 +176,7 @@ public class Homogeneous<T>{
 			if (d[d.length-1] != 0){
 				List<T> lt = Arrays.stream(d).boxed().filter(e->e > 0).map(e->list.get(e-1)).limit(len).collect(Collectors.toList());
 				if (lt.size()==len){
-					if (predivate.test(lt)) consumer.accept(lt);
+					if (predicate.test(lt)) consumer.accept(lt);
 				}
 			}
 			for(int j=len; 0 <= j; j--){
@@ -100,10 +191,10 @@ public class Homogeneous<T>{
 	/**
 	 * Predicate 最初に見つかる結果の取得
 	 * @param len 組み合わせ数 nHr の r
-	 * @param predivate 条件
+	 * @param predicate 条件
 	 * @return
 	 */
-	public List<T> firstMatch(int len, Predicate<List<T>> predivate){
+	public List<T> firstMatch(int len, Predicate<List<T>> predicate){
 		int n = list.size();
 		int[] d = new int[n > len ? n+1 : len+1];
 		for(int i=1; i <= n; i++) d[i] = 1;
@@ -111,7 +202,7 @@ public class Homogeneous<T>{
 			if (d[d.length-1] != 0){
 				List<T> lt = Arrays.stream(d).boxed().filter(e->e > 0).map(e->list.get(e-1)).limit(len).collect(Collectors.toList());
 				if (lt.size()==len){
-					if (predivate.test(lt)) return lt;
+					if (predicate.test(lt)) return lt;
 				}
 			}
 			for(int j=len; 0 <= j; j--){

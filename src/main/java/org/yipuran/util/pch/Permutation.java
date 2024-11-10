@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * 順列.
@@ -14,8 +17,6 @@ import java.util.stream.Collectors;
  */
 public class Permutation<T>{
 	private List<T> list;
-	private int     number, list_size, searched, next_index;
-	private int[][] perm_list;
 
 	/**
 	 * インスタンス生成.
@@ -42,18 +43,10 @@ public class Permutation<T>{
 	 * @return 順列リスト
 	 */
 	public List<List<T>> compute(int len){
-		if (len > list.size()) throw new IllegalArgumentException("list size over");
-		this.number     = len;
-		this.list_size  = this.fact(len);
-		this.searched   = 0;
-		this.next_index = 0;
-		this.perm_list  = new int[this.list_size][len];
-		this.create(0, new int[len], new boolean[len]);
-		List<List<T>> rtn = new ArrayList<List<T>>();
-		while(isNext()){
-			rtn.add(Arrays.stream(nextPerm()).boxed().map(e->list.get(e)).collect(Collectors.toList()));
+		if (len < 1 || list.size() < len){
+			throw new IllegalArgumentException();
 		}
-		return rtn;
+		return  StreamSupport.stream(iterable(len).spliterator(), false).collect(Collectors.toList());
 	}
 	/**
 	 * 順列イテレータ
@@ -61,36 +54,155 @@ public class Permutation<T>{
 	 * @return 順列リストイテレータ
 	 */
 	public Iterator<List<T>> iterator(int len){
-		return compute(len).iterator();
+		return iterable(len).iterator();
 	}
-	private int[] nextPerm(){
-		this.next_index++;
-		return perm_list[this.next_index-1];
+
+	/**
+	 * 順列生成する並びの長さ
+	 * @param len 生成する並びの長さ
+	 * @return
+	 */
+	public long size(int len) {
+		long rfact = (long)factorial(len);
+		return nCr(list.size(), len) * rfact;
 	}
-	private boolean isNext(){
-		if (this.next_index < this.list_size) {
-			return true;
+
+	/**
+	 * 順列 Iterable＜List＜T＞＞の生成
+	 * @param len 生成する並びの長さ
+	 * @return Iterable&lt;List&lt;T&gt;&gt;
+	 */
+	public Iterable<List<T>> iterable(int len){
+		long rfact = (long)factorial(len);
+		long total = nCr(list.size(), len) * rfact;
+		return ()-> new Iterator<List<T>>(){
+			int index = -1;
+			int permNo = 0;
+			int[] currPermutation = new int[len];
+			int[] currCombination = new int[len];
+			@Override
+			public boolean hasNext() {
+				index++;
+				return index < total;
+			}
+			@Override
+			public List<T> next(){
+				if (index==0){
+					permNo = 0;
+					for(int i=0; i < currCombination.length; i++){
+						currCombination[i] = i + 1;
+						currPermutation[i] = i + 1;
+					}
+				}else if(((permNo + 1) % rfact)==0){
+					permNo++;
+					currCombination = generateNextCombination(currCombination, list.size(), len);
+					for(int i=0; i < currCombination.length; i++){
+						currPermutation[i] = i + 1;
+					}
+				}else{
+					permNo++;
+					currPermutation = generateNextPermutation(currPermutation, len);
+				}
+				List<T> result = new ArrayList<>();
+				for(int i=0; i < len; i++){
+					result.add(list.get(currCombination[currPermutation[i] - 1] - 1));
+				}
+				return result;
+			}
+		};
+	}
+	/**
+	 * Predicate で抑制した順列 Iterable＜List＜T＞＞の生成
+	 * @param len nCr の r
+	 * @param pred Predicate&lt;List&lt;T&gt;&gt;
+	 * @return Iterable&lt;List&lt;T&gt;&gt;
+	 */
+	public Iterable<List<T>> iterable(int r, Predicate<List<T>> pred){
+		return () -> new Iterator<List<T>>(){
+			Iterator<List<T>> sourceIterator = iterable(r).iterator();
+			List<T> current;
+			boolean hasCurrent = false;
+			@Override
+			public boolean hasNext() {
+				while(!hasCurrent){
+					if (!sourceIterator.hasNext()) {
+						return false;
+					}
+					List<T> next = sourceIterator.next();
+					if (pred.test(next)) {
+						current = next;
+						hasCurrent = true;
+					}
+				}
+				return true;
+			}
+			@Override
+			public List<T> next() {
+				if (!hasNext()) throw new NoSuchElementException();
+				hasCurrent = false;
+				return current;
+			}
+		};
+	}
+	private double factorial(int n) {
+		int nfact = 1;
+		for(int i=1; i <= n; i++) {
+			nfact *= i;
 		}
-		this.next_index = 0;
-		return false;
+		return nfact;
 	}
-	private int fact(int n){
-		return n == 0 ? 1 : n * fact(n-1);
-	}
-	private void create(int _num, int[] _list, boolean[] _flag) {
-		if(_num == this.number) {
-			copyArray(_list, perm_list[this.searched]);
-			this.searched++;
+	private long nCr(int n, int r){
+		int rfact=1, nfact=1, nrfact=1, temp1=n - r, temp2=r;
+		if (r > n - r){
+			temp1 = r;
+			temp2 = n - r;
 		}
-		for(int i=0;i < _list.length;i++) {
-			if(_flag[i]) continue;
-			_list[_num] = i;
-			_flag[i] = true;
-			this.create(_num+1, _list, _flag);
-			_flag[i] = false;
+		for(int i=1; i <= n; i++){
+			if (i <= temp2){
+				rfact *= i;
+				nrfact *= i;
+			}else if(i <= temp1){
+				nrfact *= i;
+			}
+			nfact *= i;
 		}
+		return (long)(nfact / (rfact * nrfact));
 	}
-	private void copyArray(int[] _from, int[] _to) {
-		for(int i=0; i<_from.length; i++) _to[i] = _from[i];
+	private int[] generateNextCombination(int[] temp, int n, int r) {
+		int m = r;
+		int maxVal = n;
+		while(temp[m - 1]==maxVal){
+			m = m - 1;
+			maxVal--;
+		}
+		temp[m-1]++;
+		for(int j=m; j < r; j++){
+			temp[j] = temp[j-1] + 1;
+		}
+		return temp;
+	}
+	private int[] generateNextPermutation(int[] temp, int n){
+		int m = n - 1;
+		while(temp[m-1] > temp[m]) {
+			m--;
+		}
+		int k=n;
+		while(temp[m-1] > temp[k-1]){
+			k--;
+		}
+		int swapVar;
+		swapVar = temp[m-1];
+		temp[m-1] = temp[k-1];
+		temp[k-1] = swapVar;
+		int p = m + 1;
+		int q = n;
+		while(p < q){
+			swapVar = temp[p-1];
+			temp[p-1] = temp[q-1];
+			temp[q-1] = swapVar;
+			p++;
+			q--;
+		}
+		return temp;
 	}
 }

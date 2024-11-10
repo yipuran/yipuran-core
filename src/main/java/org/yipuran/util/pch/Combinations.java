@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * 順列組合せ nCr 算出（要素の重複なし組み合わせ）Combination.
@@ -21,12 +25,7 @@ import java.util.List;
  * @since 4.11
  */
 public class Combinations<T> {
-	private List<List<T>> combinations;
 	private List<T> list;
-	private int[] index;
-	private boolean[] visited;
-	private int r;
-	private boolean overHalf;
 
 	/**
 	 * List→インスタンス生成.
@@ -59,21 +58,7 @@ public class Combinations<T> {
 		if (len < 1 || list.size() < len){
 			throw new IllegalArgumentException();
 		}
-		this.combinations = new ArrayList<List<T>>();
-		this.r = len;
-		if (this.r==list.size()){
-			this.combinations.add(list);
-		}else{
-			if (this.r > list.size() / 2){
-				this.r = list.size() - this.r;
-				this.overHalf = true;
-			}
-			this.index = new int[this.r];
-			this.visited = new boolean[list.size()];
-			this._compute(list, 0);
-		}
-
-		return this.combinations;
+		return  StreamSupport.stream(iterable(len).spliterator(), false).collect(Collectors.toList());
 	}
 	/**
 	 * 組み合わせ結果List のイテレータ取得
@@ -84,54 +69,109 @@ public class Combinations<T> {
 		if (len < 1 || list.size() < len){
 			throw new IllegalArgumentException();
 		}
-		this.combinations = new ArrayList<List<T>>();
-
-		this.r = len;
-		if (this.r==list.size()){
-			this.combinations.add(list);
-		}else{
-			if (this.r > list.size() / 2){
-				this.r = list.size() - this.r;
-				this.overHalf = true;
-			}
-			this.index = new int[this.r];
-			this.visited = new boolean[list.size()];
-			this._compute(list, 0);
-		}
-		return this.combinations.iterator();
+		return iterable(len).iterator();
 	}
-
-	private void _compute(List<T> list, int n){
-		if (n==this.r){
-			List<T> combination = new ArrayList<T>();
-			if (overHalf){
-				for(int i=0;i < list.size();i++){
-					boolean skip = false;
-					for(int j=0;j < this.index.length;j++){
-						if (i== this.index[j]){
-							skip = true;
-						}
-					}
-					if (skip){
-						continue;
-					}
-					combination.add(list.get(i));
-				}
-			}else{
-				for(int i=0;i < this.index.length;i++){
-					combination.add(list.get(index[i]));
-				}
+	/**
+	 * 組み合わせ総数を求める
+	 * @param len
+	 * @return
+	 */
+	public long size(int len) {
+		return nCr(list.size(), len);
+	}
+	/**
+	 * 組み合わせ結果 Iterable＜List＜T＞＞の生成
+	 * @param len nCr の r
+	 * @return Iterable&lt;List&lt;T&gt;&gt;
+	 */
+	public Iterable<List<T>> iterable(int len){
+		return ()-> new Iterator<List<T>>() {
+			int index = -1;
+			long total = nCr(list.size(), len);
+			int[] currCombination = new int[len];
+			@Override
+			public boolean hasNext() {
+				index++;
+				return index < total;
 			}
-			this.combinations.add(combination);
-		}else{
-			for(int i=0;i < list.size();i++){
-				if (n==0 || !this.visited[i] && index[n - 1] < i){
-					this.visited[i] = true;
-					this.index[n] = i;
-					this._compute(list, n + 1);
-					this.visited[i] = false;
+			@Override
+			public List<T> next(){
+				if (index==0){
+					for(int i=0; i < currCombination.length; i++){
+						currCombination[i] = i + 1;
+					}
+				}else{
+					currCombination = generateNextCombination(currCombination, list.size(), len);
 				}
+				List<T> result = new ArrayList<>();
+				for(int aCurrCombination : currCombination) {
+					result.add(list.get(aCurrCombination - 1));
+				}
+				return result;
 			}
+		};
+	}
+	/**
+	 * Predicate で抑制した 組み合わせ結果 Iterable＜List＜T＞＞の生成
+	 * @param len nCr の r
+	 * @param pred Predicate&lt;List&lt;T&gt;&gt;
+	 * @return Iterable&lt;List&lt;T&gt;&gt;
+	 */
+	public Iterable<List<T>> iterable(int len, Predicate<List<T>> pred){
+		return () -> new Iterator<List<T>>() {
+			Iterator<List<T>> sourceIterator = iterable(len).iterator();
+			List<T> current;
+			boolean hasCurrent = false;
+			@Override
+			public boolean hasNext(){
+				while(!hasCurrent){
+					if (!sourceIterator.hasNext()) {
+						return false;
+					}
+					List<T> next = sourceIterator.next();
+					if (pred.test(next)) {
+						current = next;
+						hasCurrent = true;
+					}
+				}
+				return true;
+			}
+			@Override
+			public List<T> next() {
+				if (!hasNext()) throw new NoSuchElementException();
+				hasCurrent = false;
+				return current;
+			}
+		};
+	}
+	private long nCr(int n, int r){
+		int rfact = 1, nfact = 1, nrfact = 1, temp1 = n - r, temp2 = r;
+		if (r > n - r){
+			temp1 = r;
+			temp2 = n - r;
 		}
+		for(int i = 1; i <= n; i++){
+			if (i <= temp2){
+				rfact *= i;
+				nrfact *= i;
+			}else if(i <= temp1){
+				nrfact *= i;
+			}
+			nfact *= i;
+		}
+		return (long)(nfact / (rfact * nrfact));
+	}
+	private int[] generateNextCombination(int[] temp, int n, int r){
+		int m = r;
+		int maxVal = n;
+		while(temp[m - 1] == maxVal){
+			m = m - 1;
+			maxVal--;
+		}
+		temp[m-1]++;
+		for(int j=m; j < r; j++){
+			temp[j] = temp[j - 1] + 1;
+		}
+		return temp;
 	}
 }
